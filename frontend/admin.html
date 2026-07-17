@@ -19,7 +19,8 @@
     <nav class="navbar navbar-expand-lg navbar-dark shadow-sm" style="background-color: #004a8d;">
         <div class="container">
             <a class="navbar-brand fw-bold" href="#">Connect Senac <span class="badge bg-light text-dark ms-2">Admin Hub</span></a>
-            <button class="btn btn-outline-light btn-sm" id="btnSair">Sair</button>
+            <a href="painel.html" class="btn btn-sm btn-outline-warning me-2 fw-bold">👁️ Ver Visão do Modelo</a>
+<button class="btn btn-outline-light btn-sm" id="btnSair">Sair</button>
         </div>
     </nav>
 
@@ -33,6 +34,9 @@
     <div class="container pb-5">
 
         <ul class="nav nav-tabs mb-4" id="adminTabs" role="tablist">
+            <li class="nav-item">
+                <button class="nav-link" id="pautas-tab" data-bs-toggle="tab" data-bs-target="#pautas" type="button">📅 Pautas Globais</button>
+            </li>
             <li class="nav-item">
                 <button class="nav-link active" id="visao-tab" data-bs-toggle="tab" data-bs-target="#visao" type="button">📊 Visão Geral</button>
             </li>
@@ -191,6 +195,25 @@
                 <div class="card shadow-sm">
                     <div class="card-body p-4">
                         <h5 class="fw-bold mb-4" style="color: #004a8d;">👥 Base de Utilizadores e Histórico</h5>
+                        <!-- Bloco de Filtros Inteligentes -->
+<div class="row g-2 mb-3 bg-light p-3 rounded border">
+    <div class="col-md-6">
+        <input type="text" class="form-control" id="filtroTextoUser" placeholder="🔍 Buscar por Nome ou E-mail...">
+    </div>
+    <div class="col-md-4">
+        <select class="form-select" id="filtroPerfilUser">
+            <option value="">Todos os Perfis</option>
+            <option value="candidato">Candidatos (Modelos)</option>
+            <option value="profissional">Profissionais (Professores)</option>
+            <option value="coordenador">Coordenadores</option>
+            <option value="admin">Administradores</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <!-- Opcional: Um botão para limpar os filtros -->
+        <button class="btn btn-outline-secondary w-100" id="btnLimparFiltros">Limpar</button>
+    </div>
+</div>
                         <div class="table-responsive">
                             <table class="table align-middle table-hover">
                                 <thead class="table-light">
@@ -255,6 +278,16 @@
                 </div>
             </div>
 
+            <div class="tab-pane fade" id="pautas">
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+            <h5 class="fw-bold mb-4" style="color: #004a8d;">📅 Pautas e Inscrições por Turma</h5>
+            <div class="accordion shadow-sm" id="accordionPautasGlobais">
+                <div class="text-center text-muted">A carregar a visão global...</div>
+            </div>
+        </div>
+    </div>
+            </div>
             <div class="modal fade" id="modalEditarCurso" tabindex="-1">
                 <div class="modal-dialog modal-dialog-centered modal-lg">
                     <div class="modal-content rounded-4 border-0 shadow">

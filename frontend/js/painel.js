@@ -374,7 +374,20 @@ async function carregarMeusFeedbacks(){
         divFeedbacks.innerHTML = '<p class="text-danger">Erro ao carregar o histórico de avaliações.</p>';
     }
 }
+// [QoL] Lógica de Navegação de Retorno
+document.addEventListener('DOMContentLoaded', () => {
+    // Decodifica o token para ver quem está logado
+    if(token) {
+        const payloadToken = JSON.parse(atob(token.split('.')[1]));
+        const navbar = document.querySelector('.navbar-nav');
 
+        if (payloadToken.perfil === 'admin' || payloadToken.perfil === 'coordenador') {
+            navbar.innerHTML += `<li class="nav-item"><a class="nav-link text-warning fw-bold" href="admin.html">⬅️ Voltar ao Backoffice</a></li>`;
+        } else if (payloadToken.perfil === 'profissional') {
+            navbar.innerHTML += `<li class="nav-item"><a class="nav-link text-warning fw-bold" href="profissional.html">⬅️ Voltar à Pauta</a></li>`;
+        }
+    }
+});
 // Inicializa a página carregando tudo
 carregarMeusFeedbacks();
 carregarCursos();

@@ -39,7 +39,8 @@
             >Área do Professor</span
           ></a
         >
-        <button class="btn btn-outline-light btn-sm" id="btnSair">Sair</button>
+        <a href="painel.html" class="btn btn-sm btn-outline-warning me-2 fw-bold">👁️ Ver Visão do Modelo</a>
+<button class="btn btn-outline-light btn-sm" id="btnSair">Sair</button>
       </div>
     </nav>
 
@@ -122,19 +123,28 @@
                 // Lógica para mostrar o botão ou apenas o selo
                 let linhas = agendamentosAtivos
                   .map((ag) => {
-                    let acoesHTML = "";
-                    if (ag.status === "agendado") {
-                      acoesHTML = `<button class="btn btn-sm btn-outline-success fw-bold w-100" onclick="concluirServico('${ag.id}')">✅ Confirmar Presença</button>`;
+                    // Substitua o bloco do acoesHTML no profissional.html por isto:
+                    let acoesHTML = '';
+                    if (ag.status === 'agendado') {
+                        acoesHTML = `
+                            <div class="d-flex gap-1">
+                                <button class="btn btn-sm btn-outline-success fw-bold w-100" onclick="concluirServico('${ag.id}')" title="Confirmar Presença">✅</button>
+                                <button class="btn btn-sm btn-outline-danger fw-bold w-100" onclick="cancelarAluno('${ag.id}', '${ag.usuarios.nome}')" title="Cancelar / Falta">❌</button>
+                            </div>
+                        `;
                     } else {
-                      acoesHTML = `<span class="badge w-100 py-2 ${ag.status === "concluido" ? "bg-success" : "bg-secondary"}">${ag.status.toUpperCase()}</span>`;
+                        acoesHTML = `<span class="badge w-100 py-2 ${ag.status === 'concluido' ? 'bg-success' : 'bg-secondary'}">${ag.status.toUpperCase()}</span>`;
                     }
-
                     return `
                                 <tr>
                                     <td class="align-middle">${ag.usuarios.nome}</td>
                                     <td class="align-middle">${ag.usuarios.email}</td>
-                                    <td class="align-middle"><a href="https://wa.me/55${ag.usuarios.telefone.replace(/\D/g, "")}" target="_blank" class="text-decoration-none text-success">📱 ${ag.usuarios.telefone}</a></td>
-                                    <td class="align-middle" style="width: 150px;">${acoesHTML}</td>
+                                    <td class="align-middle">
+                                        <a href="https://wa.me/55${ag.usuarios.telefone.replace(/\D/g, "")}?text=${msgProf}" target="_blank" class="btn btn-sm btn-outline-success border-0">
+                                            <i class="bi bi-whatsapp"></i> 📱 Falar no WhatsApp
+                                        </a>
+                                    </td>                           
+                                <td class="align-middle" style="width: 150px;">${acoesHTML}</td>
                                 </tr>
                                 `;
                   })
@@ -207,6 +217,17 @@
           alert("Erro ao ligar ao servidor.");
         }
       }
+      async function cancelarAluno(agendamentoId, nome){
+    if (!confirm(`Deseja remover ${nome} da pauta? A vaga será reaberta para outro modelo.`)) return;
+    try {
+        const response = await fetch(`${API_URL}/profissional/agendamentos/${agendamentoId}/cancelar`, {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.ok) carregarMinhasTurmas();
+        else alert((await response.json()).erro);
+    } catch (error) { alert('Erro na conexão.'); }
+}
     </script>
   </body>
 </html>
