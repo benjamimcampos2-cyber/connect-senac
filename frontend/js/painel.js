@@ -11,7 +11,7 @@ document.getElementById('btnSair').addEventListener('click', () => {
     window.location.href = 'index.html';
 });
 
-// Instância do Modal do Bootstrap para controlo via JS
+// Instâncias de Modais
 const modalAgendamento = new bootstrap.Modal(document.getElementById('modalAgendamento'));
 const modalFeedback = new bootstrap.Modal(document.getElementById('modalFeedback'));
 const modalDetalhesCurso = new bootstrap.Modal(document.getElementById('modalDetalhesCurso'));
@@ -28,8 +28,8 @@ async function carregarCursos(){
         const cursos = await response.json();
 
         divCursos.innerHTML = '';
-        if (cursos.length === 0) {
-            divCursos.innerHTML = '<p class="text-muted">Nenhum serviço disponível de momento.</p>';
+        if (!Array.isArray(cursos) || cursos.length === 0) {
+            divCursos.innerHTML = '<div class="col-span-full text-center py-12 text-slate-400 text-sm">Nenhum serviço disponível de momento.</div>';
             return;
         }
 
@@ -38,16 +38,22 @@ async function carregarCursos(){
             const local = curso.localizacao || 'SENAC';
             const imagem = curso.foto_url || 'https://via.placeholder.com/600x400/004a8d/ffffff?text=Connect+Senac';
 
-            // O Card agora é clicável por inteiro e tem a imagem no topo
             const card = `
-                <div class="col-md-6 col-lg-4">
-                    <div class="card shadow-sm h-100 card-curso overflow-hidden" style="cursor: pointer;" onclick='abrirModalDetalhesCurso(${JSON.stringify(curso).replace(/'/g, "&#39;")})'>
-                        <img src="${imagem}" class="card-img-top" style="height: 180px; object-fit: cover;" alt="${curso.nome}">
-                        <div class="card-body d-flex flex-column">
-                            <h5 class="card-title fw-bold text-dark mb-1">${curso.nome}</h5>
-                            <div class="text-muted small mb-2">📍 ${local}</div>
-                            <p class="card-text small text-secondary flex-grow-1">${curso.descricao.substring(0, 80)}...</p>
-                            <button class="btn btn-outline-primary btn-sm w-100 fw-bold mt-auto">Saber mais</button>
+                <div class="group bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col cursor-pointer hover:-translate-y-1" onclick='abrirModalDetalhesCurso(${JSON.stringify(curso).replace(/'/g, "&#39;")})'>
+                    <div class="relative h-48 w-full bg-slate-100 overflow-hidden">
+                        <img src="${imagem}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="${curso.nome}">
+                        <div class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-slate-700 text-xs font-semibold px-2.5 py-1 rounded-lg border border-white/60 shadow-xs">
+                            📍 ${local}
+                        </div>
+                    </div>
+                    <div class="p-6 flex-1 flex flex-col justify-between">
+                        <div>
+                            <h3 class="font-bold text-slate-900 text-base mb-1.5 group-hover:text-brand-600 transition-colors">${curso.nome}</h3>
+                            <p class="text-xs text-slate-500 line-clamp-2 mb-4 leading-relaxed">${curso.descricao}</p>
+                        </div>
+                        <div class="pt-4 border-t border-slate-100 flex items-center justify-between mt-auto">
+                            <span class="text-xs font-medium text-slate-500 truncate max-w-[140px]">Prof. ${profNome}</span>
+                            <span class="text-xs font-bold text-brand-600 group-hover:translate-x-1 transition-transform">Ver Detalhes →</span>
                         </div>
                     </div>
                 </div>
@@ -55,7 +61,7 @@ async function carregarCursos(){
             divCursos.innerHTML += card;
         });
     } catch (error) {
-        divCursos.innerHTML = '<p class="text-danger">Erro ao carregar os cursos.</p>';
+        divCursos.innerHTML = '<div class="col-span-full text-center py-10 text-rose-500 text-sm">Erro ao carregar os cursos.</div>';
     }
 }
 
@@ -63,71 +69,67 @@ async function carregarCursos(){
 // 1.5 MODAL DE DETALHES DO CURSO
 // ==========================================
 function abrirModalDetalhesCurso(curso){
-    // 1. Preencher os dados visuais
     document.getElementById('detalheCursoNome').textContent = curso.nome;
     document.getElementById('detalheCursoProf').textContent = curso.usuarios ? curso.usuarios.nome : 'A definir';
     document.getElementById('detalheCursoLocal').textContent = curso.localizacao || 'SENAC';
     document.getElementById('detalheCursoDescricao').textContent = curso.descricao;
-
-    // Configurar a Imagem
     document.getElementById('detalheCursoImagem').src = curso.foto_url || 'https://via.placeholder.com/800x400/004a8d/ffffff?text=Connect+Senac';
 
-    // Configurar o bloco de Restrições (Esconde se não houver)
     const blocoRestricoes = document.getElementById('blocoRestricoes');
     if (curso.restricoes && curso.restricoes.trim() !== '') {
-        blocoRestricoes.style.display = 'block';
+        blocoRestricoes.classList.remove('hidden');
         document.getElementById('detalheCursoRestricoes').textContent = curso.restricoes;
     } else {
-        blocoRestricoes.style.display = 'none';
+        blocoRestricoes.classList.add('hidden');
     }
 
-    // 2. Programar o botão para abrir o Agendamento
     const btnHorarios = document.getElementById('btnIrParaHorarios');
     btnHorarios.onclick = () => {
         modalDetalhesCurso.hide();
-        // Atraso de 400ms para a animação do Bootstrap não "encavalar" os dois modais
         setTimeout(() => {
             abrirModalAgendamento(curso.id, curso.nome, curso.descricao);
         }, 400);
     };
 
-    // [NOVO] Buscar as avaliações deste curso
     const divAvaliacoes = document.getElementById('detalheCursoAvaliacoes');
-    divAvaliacoes.innerHTML = '<div class="text-center text-muted small">A carregar...</div>';
+    divAvaliacoes.innerHTML = '<div class="text-center text-slate-400 text-xs py-3">A carregar avaliações...</div>';
 
     fetch(`${API_URL}/feedbacks/curso/${curso.id}`, { headers: { 'Authorization': `Bearer ${token}` } })
         .then(res => res.json())
         .then(feedbacks => {
-            if (feedbacks.length === 0) {
-                divAvaliacoes.innerHTML = '<div class="text-muted small text-center py-3">Este curso ainda não tem avaliações. Seja o primeiro a avaliar!</div>';
+            if (!Array.isArray(feedbacks) || feedbacks.length === 0) {
+                divAvaliacoes.innerHTML = '<div class="text-slate-400 text-xs text-center py-3">Este curso ainda não possui avaliações. Seja o primeiro a avaliar!</div>';
                 return;
             }
 
-            // Calcula a Média
             const media = (feedbacks.reduce((acc, curr) => acc + curr.nota, 0) / feedbacks.length).toFixed(1);
 
-            let html = `<div class="mb-3"><span class="badge bg-warning text-dark fs-6">Nota Média: ${media} / 5.0</span> <span class="small text-muted ms-2">(${feedbacks.length} avaliações)</span></div>`;
+            let html = `
+                <div class="flex items-center gap-2 mb-3 bg-amber-50 rounded-xl p-2.5 border border-amber-100">
+                    <span class="text-xs font-bold text-amber-800">Nota Média: ${media} / 5.0</span>
+                    <span class="text-xs text-amber-600">(${feedbacks.length} avaliações)</span>
+                </div>
+            `;
 
             feedbacks.forEach(f => {
                 const estrelas = '⭐'.repeat(f.nota);
                 const dataFormatada = new Date(f.created_at).toLocaleDateString('pt-BR');
-                const comentarioTexto = f.comentario ? `"${f.comentario}"` : '<span class="text-muted fst-italic">Sem comentário escrito.</span>';
+                const comentarioTexto = f.comentario ? `"${f.comentario}"` : '<span class="text-slate-400 italic">Sem comentário adicional.</span>';
 
                 html += `
-                    <div class="bg-light p-3 rounded mb-2 border-start border-warning border-4">
-                        <div class="d-flex justify-content-between mb-1">
-                            <strong class="small text-dark">${f.avaliador_nome}</strong>
-                            <span class="small text-muted">${dataFormatada}</span>
+                    <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+                        <div class="flex items-center justify-between mb-1">
+                            <strong class="text-xs font-bold text-slate-800">${f.avaliador_nome}</strong>
+                            <span class="text-[11px] text-slate-400">${dataFormatada}</span>
                         </div>
-                        <div class="mb-1">${estrelas}</div>
-                        <div class="small text-secondary">${comentarioTexto}</div>
+                        <div class="text-xs text-amber-500 mb-1">${estrelas}</div>
+                        <div class="text-xs text-slate-600 leading-relaxed">${comentarioTexto}</div>
                     </div>
                 `;
             });
             divAvaliacoes.innerHTML = html;
         });
 
-    // 3. Mostrar o modal
     modalDetalhesCurso.show();
 }
 
@@ -142,7 +144,6 @@ async function abrirModalAgendamento(cursoId, cursoNome, cursoDescricao){
     const select = document.getElementById('selectHorarios');
     select.innerHTML = '<option value="" disabled selected>A procurar horários...</option>';
 
-    // Configura o botão de confirmar para saber qual curso estamos a tratar
     const btnConfirmar = document.getElementById('btnConfirmarAgendamento');
     btnConfirmar.onclick = () => realizarAgendamento(select.value);
 
@@ -156,8 +157,8 @@ async function abrirModalAgendamento(cursoId, cursoNome, cursoDescricao){
 
         select.innerHTML = '<option value="" disabled selected>Escolha um horário...</option>';
 
-        if (horarios.length === 0) {
-            select.innerHTML = '<option value="" disabled selected>Sem vagas de momento.</option>';
+        if (!Array.isArray(horarios) || horarios.length === 0) {
+            select.innerHTML = '<option value="" disabled selected>Sem vagas no momento.</option>';
             btnConfirmar.disabled = true;
             return;
         }
@@ -166,7 +167,7 @@ async function abrirModalAgendamento(cursoId, cursoNome, cursoDescricao){
         horarios.forEach(h => {
             const dataFormatada = new Date(h.data_hora).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
             const vagasLivres = h.vagas_totais - h.vagas_ocupadas;
-            select.innerHTML += `<option value="${h.id}">${dataFormatada} (${vagasLivres} vagas)</option>`;
+            select.innerHTML += `<option value="${h.id}">${dataFormatada} (${vagasLivres} vagas livres)</option>`;
         });
     } catch (error) {
         select.innerHTML = '<option value="" disabled selected>Erro ao carregar horários.</option>';
@@ -176,11 +177,11 @@ async function abrirModalAgendamento(cursoId, cursoNome, cursoDescricao){
 async function realizarAgendamento(disponibilidadeId){
     const msgDiv = document.getElementById('msgAgendamento');
     if (!disponibilidadeId) {
-        msgDiv.innerHTML = '<span class="text-danger">Por favor, selecione um horário.</span>';
+        msgDiv.innerHTML = '<span class="text-rose-600">Por favor, selecione um horário.</span>';
         return;
     }
 
-    msgDiv.innerHTML = '<span class="text-primary">A confirmar...</span>';
+    msgDiv.innerHTML = '<span class="text-brand-600 font-medium">A confirmar presença...</span>';
     try {
         const response = await fetch(`${API_URL}/agendamentos`, {
             method: 'POST',
@@ -191,14 +192,14 @@ async function realizarAgendamento(disponibilidadeId){
         const data = await response.json();
 
         if (response.ok) {
-            msgDiv.innerHTML = `<span class="text-success">Agendamento concluído!</span>`;
-            carregarMeusAgendamentos(); // Atualiza a lista automaticamente
+            msgDiv.innerHTML = `<span class="text-emerald-600 font-bold">Agendamento concluído com sucesso!</span>`;
+            carregarMeusAgendamentos();
             setTimeout(() => modalAgendamento.hide(), 1500);
         } else {
-            msgDiv.innerHTML = `<span class="text-danger">${data.erro}</span>`;
+            msgDiv.innerHTML = `<span class="text-rose-600">${data.erro}</span>`;
         }
     } catch (error) {
-        msgDiv.innerHTML = '<span class="text-danger">Erro de conexão.</span>';
+        msgDiv.innerHTML = '<span class="text-rose-600">Erro de conexão com o servidor.</span>';
     }
 }
 
@@ -214,47 +215,48 @@ async function carregarMeusAgendamentos(){
         const agendamentos = await response.json();
 
         divAgendamentos.innerHTML = '';
-        if (agendamentos.length === 0) {
-            divAgendamentos.innerHTML = '<p class="text-muted small">Não possui nenhum agendamento ativo.</p>';
+        if (!Array.isArray(agendamentos) || agendamentos.length === 0) {
+            divAgendamentos.innerHTML = '<div class="col-span-full text-center py-10 text-slate-400 text-sm">Não possui nenhum agendamento ativo de momento.</div>';
             return;
         }
 
         agendamentos.forEach(ag => {
-            const cursoNome = ag.disponibilidades.cursos.nome;
-            const dataHora = new Date(ag.disponibilidades.data_hora).toLocaleString('pt-BR');
+            const cursoNome = ag.disponibilidades?.cursos?.nome || 'Curso';
+            const dataHora = new Date(ag.disponibilidades?.data_hora).toLocaleString('pt-BR');
             let badge = '';
             let acoesHTML = '';
 
             if (ag.status === 'agendado') {
-                badge = '<span class="badge bg-primary">Confirmado</span>';
-                acoesHTML = `<button class="btn btn-sm btn-outline-danger mt-2 w-100" onclick="cancelarAgendamento('${ag.id}')">Cancelar Inscrição</button>`;
+                badge = '<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-brand-100 text-brand-800">Confirmado</span>';
+                acoesHTML = `<button class="w-full mt-3 inline-flex items-center justify-center rounded-xl border border-rose-200 bg-rose-50/60 hover:bg-rose-100 py-2.5 px-3 text-xs font-bold text-rose-700 transition active:scale-98" onclick="cancelarAgendamento('${ag.id}')">Cancelar Inscrição</button>`;
             } else if (ag.status === 'cancelado') {
-                badge = '<span class="badge bg-danger">Cancelado</span>';
+                badge = '<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-800">Cancelado</span>';
             } else if (ag.status === 'concluido') {
-                badge = '<span class="badge bg-success">Concluído</span>';
-                // Mostra o botão para avaliar a aula prática
-                acoesHTML = `<button class="btn btn-sm btn-warning mt-2 w-100 fw-bold" onclick="abrirModalFeedback('${ag.id}')">⭐ Avaliar Serviço</button>`;
+                badge = '<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">Concluído</span>';
+                acoesHTML = `<button class="w-full mt-3 inline-flex items-center justify-center rounded-xl bg-amber-500 hover:bg-amber-600 py-2.5 px-3 text-xs font-bold text-white shadow-xs transition active:scale-98" onclick="abrirModalFeedback('${ag.id}')">⭐ Avaliar Serviço</button>`;
             }
 
             const card = `
-                <div class="col-12 col-md-6 col-xl-4">
-                    <div class="card shadow-sm border-0 bg-white">
-                        <div class="card-body p-3">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="fw-bold text-dark">${cursoNome}</span>
-                                ${badge}
-                            </div>
-                            <div class="text-secondary small mb-2"><i class="bi bi-calendar"></i> ${dataHora}</div>
-                            ${acoesHTML}
-                            <div id="msg-canc-${ag.id}" class="small text-center mt-1"></div>
+                <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-start justify-between gap-3 mb-3">
+                            <h3 class="font-bold text-slate-900 text-sm">${cursoNome}</h3>
+                            ${badge}
                         </div>
+                        <p class="text-xs font-medium text-slate-500 flex items-center gap-1.5">
+                            <span>📅</span> ${dataHora}
+                        </p>
+                    </div>
+                    <div>
+                        ${acoesHTML}
+                        <div id="msg-canc-${ag.id}" class="text-xs text-center font-bold mt-2"></div>
                     </div>
                 </div>
             `;
             divAgendamentos.innerHTML += card;
         });
     } catch (error) {
-        divAgendamentos.innerHTML = '<p class="text-danger">Erro ao carregar histórico.</p>';
+        divAgendamentos.innerHTML = '<div class="col-span-full text-center py-10 text-rose-500 text-sm">Erro ao carregar histórico.</div>';
     }
 }
 
@@ -271,12 +273,12 @@ async function cancelarAgendamento(agendamentoId){
         const data = await response.json();
 
         if (response.ok) {
-            carregarMeusAgendamentos(); // Recarrega a lista para mostrar o novo status
+            carregarMeusAgendamentos();
         } else {
-            msgDiv.innerHTML = `<span class="text-danger fw-bold">${data.erro}</span>`;
+            msgDiv.innerHTML = `<span class="text-rose-600 font-bold">${data.erro}</span>`;
         }
     } catch (error) {
-        msgDiv.innerHTML = '<span class="text-danger">Erro ao processar pedido.</span>';
+        msgDiv.innerHTML = '<span class="text-rose-600">Erro ao processar pedido.</span>';
     }
 }
 
@@ -285,7 +287,7 @@ async function cancelarAgendamento(agendamentoId){
 // ==========================================
 function abrirModalFeedback(agendamentoId){
     document.getElementById('feedbackAgendamentoId').value = agendamentoId;
-    document.getElementById('feedbackNota').value = '5'; // Padrão 5 estrelas
+    document.getElementById('feedbackNota').value = '5';
     document.getElementById('feedbackComentario').value = '';
     document.getElementById('msgFeedback').innerHTML = '';
     modalFeedback.show();
@@ -296,7 +298,7 @@ if (formFeedback) {
     formFeedback.addEventListener('submit', async (e) => {
         e.preventDefault();
         const msgDiv = document.getElementById('msgFeedback');
-        msgDiv.innerHTML = '<span class="text-primary">A processar avaliação...</span>';
+        msgDiv.innerHTML = '<span class="text-brand-600 font-medium">A processar avaliação...</span>';
 
         const payload = {
             agendamento_id: document.getElementById('feedbackAgendamentoId').value,
@@ -317,17 +319,16 @@ if (formFeedback) {
             const data = await response.json();
 
             if (response.ok) {
-                msgDiv.innerHTML = `<span class="text-success">${data.mensagem}</span>`;
+                msgDiv.innerHTML = `<span class="text-emerald-600 font-bold">${data.mensagem}</span>`;
                 setTimeout(() => {
                     modalFeedback.hide();
-                    // Opcional: Aqui podíamos atualizar a UI para esconder o botão de avaliar,
-                    // mas por agora o backend já bloqueia duplicações de forma segura.
-                }, 2000);
+                    carregarMeusFeedbacks();
+                }, 1500);
             } else {
-                msgDiv.innerHTML = `<span class="text-danger">${data.erro}</span>`;
+                msgDiv.innerHTML = `<span class="text-rose-600 font-bold">${data.erro}</span>`;
             }
         } catch (error) {
-            msgDiv.innerHTML = '<span class="text-danger">Erro de ligação.</span>';
+            msgDiv.innerHTML = '<span class="text-rose-600">Erro de ligação.</span>';
         }
     });
 }
@@ -344,51 +345,53 @@ async function carregarMeusFeedbacks(){
         const feedbacks = await response.json();
 
         divFeedbacks.innerHTML = '';
-        if (feedbacks.length === 0) {
-            divFeedbacks.innerHTML = '<p class="text-muted small">Ainda não realizou nenhuma avaliação.</p>';
+        if (!Array.isArray(feedbacks) || feedbacks.length === 0) {
+            divFeedbacks.innerHTML = '<div class="col-span-full text-center py-10 text-slate-400 text-sm">Ainda não realizou nenhuma avaliação.</div>';
             return;
         }
 
         feedbacks.forEach(f => {
             const estrelas = '⭐'.repeat(f.nota);
             const dataFormatada = new Date(f.created_at).toLocaleDateString('pt-BR');
-            const comentarioTexto = f.comentario ? `"${f.comentario}"` : 'Apenas nota, sem texto.';
+            const comentarioTexto = f.comentario ? `"${f.comentario}"` : '<span class="text-slate-400 italic">Apenas nota, sem texto.</span>';
 
             const card = `
-                <div class="col-12 col-md-6 col-lg-4">
-                    <div class="card shadow-sm border-0 bg-white h-100">
-                        <div class="card-body p-4">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="fw-bold text-dark text-truncate">${f.curso_nome}</span>
-                                <span class="badge bg-light text-dark">${dataFormatada}</span>
-                            </div>
-                            <div class="mb-3 fs-5">${estrelas}</div>
-                            <p class="text-secondary small mb-0 fst-italic">${comentarioTexto}</p>
+                <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between gap-2 mb-2">
+                            <h3 class="font-bold text-slate-900 text-sm truncate">${f.curso_nome}</h3>
+                            <span class="text-xs text-slate-400 font-medium">${dataFormatada}</span>
                         </div>
+                        <div class="text-amber-500 text-sm mb-3">${estrelas}</div>
+                        <p class="text-xs text-slate-600 leading-relaxed">${comentarioTexto}</p>
                     </div>
                 </div>
             `;
             divFeedbacks.innerHTML += card;
         });
     } catch (error) {
-        divFeedbacks.innerHTML = '<p class="text-danger">Erro ao carregar o histórico de avaliações.</p>';
+        divFeedbacks.innerHTML = '<div class="col-span-full text-center py-10 text-rose-500 text-sm">Erro ao carregar o histórico de avaliações.</div>';
     }
 }
-// [QoL] Lógica de Navegação de Retorno
-document.addEventListener('DOMContentLoaded', () => {
-    // Decodifica o token para ver quem está logado
-    if(token) {
-        const payloadToken = JSON.parse(atob(token.split('.')[1]));
-        const navbar = document.querySelector('.navbar-nav');
 
-        if (payloadToken.perfil === 'admin' || payloadToken.perfil === 'coordenador') {
-            navbar.innerHTML += `<li class="nav-item"><a class="nav-link text-warning fw-bold" href="admin.html">⬅️ Voltar ao Backoffice</a></li>`;
-        } else if (payloadToken.perfil === 'profissional') {
-            navbar.innerHTML += `<li class="nav-item"><a class="nav-link text-warning fw-bold" href="profissional.html">⬅️ Voltar à Pauta</a></li>`;
-        }
+// Navegação de Retorno
+document.addEventListener('DOMContentLoaded', () => {
+    if(token) {
+        try {
+            const payloadToken = JSON.parse(atob(token.split('.')[1]));
+            const navbar = document.querySelector('.navbar-nav');
+            if (navbar) {
+                if (payloadToken.perfil === 'admin' || payloadToken.perfil === 'coordenador') {
+                    navbar.innerHTML += `<a class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-amber-300 hover:bg-white/10 transition" href="admin.html">⬅️ Voltar ao Backoffice</a>`;
+                } else if (payloadToken.perfil === 'profissional') {
+                    navbar.innerHTML += `<a class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-amber-300 hover:bg-white/10 transition" href="profissional.html">⬅️ Voltar à Pauta</a>`;
+                }
+            }
+        } catch (e) {}
     }
 });
-// Inicializa a página carregando tudo
+
+// Inicialização
 carregarMeusFeedbacks();
 carregarCursos();
 carregarMeusAgendamentos();

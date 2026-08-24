@@ -39,9 +39,20 @@ if (formLogin) {
         } else {
           window.location.href = "painel.html"; // Candidato/Modelo
         }
+      } else {
+        if (msgErro) {
+          msgErro.textContent = data.erro || "Credenciais inválidas.";
+          msgErro.classList.remove("hidden");
+          msgErro.classList.remove("d-none");
+        }
       }
     } catch (error) {
       console.error("Erro na requisição:", error);
+      if (msgErro) {
+        msgErro.textContent = "Erro de conexão com o servidor.";
+        msgErro.classList.remove("hidden");
+        msgErro.classList.remove("d-none");
+      }
     }
   });
 }

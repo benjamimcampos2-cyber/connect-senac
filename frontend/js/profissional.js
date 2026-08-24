@@ -44,7 +44,7 @@ async function carregarMinhasTurmas() {
 
     if (!Array.isArray(cursos) || cursos.length === 0) {
       accordion.innerHTML =
-        '<div class="alert alert-info border-0 shadow-sm">Nenhum curso ativo vinculado ao seu perfil de momento.</div>';
+        '<div class="p-8 text-center bg-white rounded-3xl border border-slate-200 text-sm text-slate-500">Nenhum curso ativo vinculado ao seu perfil de momento.</div>';
       return;
     }
 
@@ -52,7 +52,6 @@ async function carregarMinhasTurmas() {
       let horariosHTML = "";
 
       if (curso.disponibilidades && curso.disponibilidades.length > 0) {
-        // Ordenar as disponibilidades por data
         curso.disponibilidades.sort(
           (a, b) => new Date(a.data_hora) - new Date(b.data_hora)
         );
@@ -63,29 +62,28 @@ async function carregarMinhasTurmas() {
             { dateStyle: "short", timeStyle: "short" }
           );
 
-          // Filtrar agendamentos que não foram cancelados
           const agendamentosAtivos = (disp.agendamentos || []).filter(
             (a) => a.status !== "cancelado"
           );
 
           let tabelaModelos = "";
           if (agendamentosAtivos.length === 0) {
-            tabelaModelos = `<p class="text-muted small mb-0 mt-2">Nenhum modelo agendado para este horário ainda.</p>`;
+            tabelaModelos = `<p class="text-slate-400 text-xs py-3 text-center">Nenhum modelo agendado para este horário ainda.</p>`;
           } else {
             let linhas = agendamentosAtivos
               .map((ag) => {
                 let acoesHTML = "";
                 if (ag.status === "agendado") {
                   acoesHTML = `
-                    <div class="d-flex gap-1">
-                      <button class="btn btn-sm btn-outline-success fw-bold w-100" onclick="concluirServico('${ag.id}')" title="Confirmar Presença">✅ Concluir</button>
-                      <button class="btn btn-sm btn-outline-danger fw-bold w-100" onclick="cancelarAluno('${ag.id}', '${ag.usuarios ? ag.usuarios.nome : "Modelo"}')" title="Cancelar / Falta">❌ Falta</button>
+                    <div class="flex items-center gap-1.5 justify-center">
+                      <button class="inline-flex items-center gap-1 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2.5 py-1.5 text-xs font-bold text-emerald-700 transition active:scale-95" onclick="concluirServico('${ag.id}')" title="Confirmar Presença">✅ Presença</button>
+                      <button class="inline-flex items-center gap-1 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-200 px-2.5 py-1.5 text-xs font-bold text-rose-700 transition active:scale-95" onclick="cancelarAluno('${ag.id}', '${ag.usuarios ? ag.usuarios.nome : "Modelo"}')" title="Cancelar / Falta">❌ Falta</button>
                     </div>
                   `;
+                } else if (ag.status === "concluido") {
+                  acoesHTML = `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">CONCLUÍDO</span>`;
                 } else {
-                  acoesHTML = `<span class="badge w-100 py-2 ${
-                    ag.status === "concluido" ? "bg-success" : "bg-secondary"
-                  }">${ag.status.toUpperCase()}</span>`;
+                  acoesHTML = `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700">${ag.status.toUpperCase()}</span>`;
                 }
 
                 const nomeModelo = ag.usuarios ? ag.usuarios.nome : "Não informado";
@@ -93,45 +91,50 @@ async function carregarMinhasTurmas() {
                 const telRaw = ag.usuarios ? ag.usuarios.telefone || "" : "";
                 const telLimpo = telRaw.replace(/\D/g, "");
 
-                // Mensagem personalizada para contato com o modelo via WhatsApp
                 const msgProf = encodeURIComponent(
                   `Olá, ${nomeModelo}! Aqui é o(a) professor(a) do SENAC referente ao curso ${curso.nome}.`
                 );
 
                 const linkZap = telLimpo
-                  ? `<a href="https://wa.me/55${telLimpo}?text=${msgProf}" target="_blank" class="btn btn-sm btn-outline-success border-0">📱 WhatsApp</a>`
-                  : `<span class="text-muted small">Sem telefone</span>`;
+                  ? `<a href="https://wa.me/55${telLimpo}?text=${msgProf}" target="_blank" class="inline-flex items-center gap-1 font-semibold text-emerald-600 hover:text-emerald-800 transition">📱 WhatsApp</a>`
+                  : `<span class="text-slate-400">Sem telefone</span>`;
 
                 return `
-                  <tr>
-                    <td class="align-middle fw-semibold">${nomeModelo}</td>
-                    <td class="align-middle">${emailModelo}</td>
-                    <td class="align-middle">${linkZap}</td>
-                    <td class="align-middle" style="width: 170px;">${acoesHTML}</td>
+                  <tr class="hover:bg-slate-50/70 transition-colors">
+                    <td class="py-3 px-4 font-semibold text-slate-900">${nomeModelo}</td>
+                    <td class="py-3 px-4 text-slate-600">${emailModelo}</td>
+                    <td class="py-3 px-4">${linkZap}</td>
+                    <td class="py-3 px-4 text-center">${acoesHTML}</td>
                   </tr>
                 `;
               })
               .join("");
 
             tabelaModelos = `
-              <table class="table table-sm mt-3 border">
-                <thead class="table-light">
-                  <tr>
-                    <th>Modelo</th>
-                    <th>Email</th>
-                    <th>Contato</th>
-                    <th class="text-center">Status / Ação</th>
-                  </tr>
-                </thead>
-                <tbody>${linhas}</tbody>
-              </table>`;
+              <div class="overflow-x-auto rounded-xl border border-slate-100 mt-3">
+                <table class="min-w-full divide-y divide-slate-100 text-left text-xs">
+                  <thead class="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider">
+                    <tr>
+                      <th class="py-2.5 px-4">Modelo</th>
+                      <th class="py-2.5 px-4">E-mail</th>
+                      <th class="py-2.5 px-4">Contato</th>
+                      <th class="py-2.5 px-4 text-center">Status / Ação</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100 bg-white">${linhas}</tbody>
+                </table>
+              </div>`;
           }
 
           horariosHTML += `
-            <div class="mb-4 p-3 bg-white border rounded shadow-sm">
-              <div class="fw-bold text-dark border-bottom pb-2">
-                📅 Aula: ${dataFormatada} 
-                <span class="badge bg-secondary float-end">Ocupação: ${disp.vagas_ocupadas} / ${disp.vagas_totais}</span>
+            <div class="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs">
+              <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100 mb-2">
+                <div class="flex items-center gap-2 font-bold text-slate-900 text-sm">
+                  <span>📅</span> Aula: ${dataFormatada}
+                </div>
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">
+                  Ocupação: ${disp.vagas_ocupadas} / ${disp.vagas_totais}
+                </span>
               </div>
               ${tabelaModelos}
             </div>
@@ -140,18 +143,21 @@ async function carregarMinhasTurmas() {
       }
 
       const itemOpen = index === 0 ? "show" : "";
-      const btnCollapsed = index === 0 ? "" : "collapsed";
 
       accordion.innerHTML += `
-        <div class="accordion-item border-0 border-bottom">
-          <h2 class="accordion-header">
-            <button class="accordion-button ${btnCollapsed}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${curso.id}">
-              📘 ${curso.nome}
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden transition-all">
+          <h2>
+            <button class="w-full flex items-center justify-between p-5 text-left font-bold text-slate-900 hover:bg-slate-50 transition" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${curso.id}">
+              <div class="flex items-center gap-3">
+                <span class="text-xl">📘</span>
+                <span class="text-base">${curso.nome}</span>
+              </div>
+              <span class="text-xs text-brand-600 font-semibold bg-brand-50 px-3 py-1 rounded-lg">Ver Pauta ↓</span>
             </button>
           </h2>
-          <div id="collapse${curso.id}" class="accordion-collapse collapse ${itemOpen}" data-bs-parent="#accordionTurmas">
-            <div class="accordion-body bg-light">
-              ${horariosHTML || '<p class="text-muted">Sem horários abertos para este curso.</p>'}
+          <div id="collapse${curso.id}" class="collapse ${itemOpen} border-t border-slate-100" data-bs-parent="#accordionTurmas">
+            <div class="p-5 sm:p-6 bg-slate-50/50 space-y-5">
+              ${horariosHTML || '<p class="text-xs text-slate-400 text-center py-4">Sem horários abertos para este curso.</p>'}
             </div>
           </div>
         </div>
@@ -160,7 +166,7 @@ async function carregarMinhasTurmas() {
   } catch (error) {
     console.error("Erro ao carregar turmas:", error);
     accordion.innerHTML =
-      '<div class="text-danger p-4">Erro ao carregar os dados. Verifique a conexão com o servidor.</div>';
+      '<div class="p-8 text-center text-rose-600 text-sm bg-white rounded-3xl border border-slate-200">Erro ao carregar os dados. Verifique a conexão com o servidor.</div>';
   }
 }
 

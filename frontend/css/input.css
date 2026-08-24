@@ -1,0 +1,130 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-800 font-sans antialiased selection:bg-brand-100 selection:text-brand-900;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="tel"],
+  input[type="url"],
+  input[type="number"],
+  input[type="datetime-local"],
+  select,
+  textarea {
+    @apply block w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-800 shadow-sm transition placeholder:text-slate-400 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-600/20 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500;
+  }
+}
+
+@layer components {
+  /* Botões Reutilizáveis */
+  .btn-brand {
+    @apply inline-flex items-center justify-center font-semibold rounded-xl px-4 py-2.5 bg-brand-600 hover:bg-brand-800 text-white transition-all shadow-sm active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center font-semibold rounded-xl px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  .btn-success {
+    @apply inline-flex items-center justify-center font-semibold rounded-xl px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white transition-all shadow-sm active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  .btn-danger {
+    @apply inline-flex items-center justify-center font-semibold rounded-xl px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white transition-all shadow-sm active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  .card-container {
+    @apply bg-white rounded-2xl border border-slate-200 shadow-sm transition-all;
+  }
+}
+
+/* ==========================================================================
+   Compatibilidade e Transições de Modais, Abas e Acordeões (Tailwind UI)
+   ========================================================================== */
+
+/* Modais Centralizados e Fluidos */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background-color: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(4px);
+  overflow-y: auto;
+}
+
+.modal.show {
+  display: flex !important;
+}
+
+.modal-dialog {
+  position: relative;
+  width: 100%;
+  max-width: 32rem;
+  margin: auto;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: scale(0.96) translateY(8px);
+  opacity: 0;
+}
+
+.modal.show .modal-dialog {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+}
+
+.modal-dialog.modal-lg {
+  max-width: 48rem !important;
+}
+
+.modal-content {
+  @apply relative w-full bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden;
+}
+
+.modal-backdrop {
+  display: none !important;
+}
+
+/* Abas (Tabs) */
+.tab-pane {
+  display: none;
+}
+
+.tab-pane.active,
+.tab-pane.show {
+  display: block;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(3px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Acordeões / Collapse */
+.collapse:not(.show) {
+  display: none;
+}
+
+.collapse.show {
+  display: block;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+/* Badges e Tags Dinâmicas */
+.badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold;
+}
+.bg-success { @apply bg-emerald-100 text-emerald-800 !important; }
+.bg-primary { @apply bg-brand-100 text-brand-800 !important; }
+.bg-danger { @apply bg-rose-100 text-rose-800 !important; }
+.bg-warning { @apply bg-amber-100 text-amber-800 !important; }
+.bg-secondary { @apply bg-slate-100 text-slate-700 !important; }
+.bg-info { @apply bg-sky-100 text-sky-800 !important; }
