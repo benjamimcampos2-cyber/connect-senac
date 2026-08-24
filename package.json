@@ -25,10 +25,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/DeysonSantana/connect-senac.git"
+    "url": "git+https://github.com/benjamimcampos2-cyber/connect-senac.git"
   },
   "bugs": {
-    "url": "https://github.com/DeysonSantana/connect-senac/issues"
+    "url": "https://github.com/benjamimcampos2-cyber/connect-senac/issues"
   },
-  "homepage": "https://github.com/DeysonSantana/connect-senac#readme"
+  "homepage": "https://github.com/benjamimcampos2-cyber/connect-senac#readme"
 }
