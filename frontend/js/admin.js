@@ -262,42 +262,48 @@ if(formColaborador) {
 // LÓGICA DE CADASTRO DE CURSO & VAGAS
 // ============================================================================
 const formCurso = document.getElementById('formCurso');
-formCurso.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const msgDiv = document.getElementById('msgCurso');
-    msgDiv.innerHTML = '<span class="text-primary">A guardar curso...</span>';
+if (formCurso) {
+    formCurso.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const msgDiv = document.getElementById('msgCurso');
+        msgDiv.innerHTML = '<span class="text-primary">A guardar curso...</span>';
 
-    const payload = {
-        nome: document.getElementById('nomeCurso').value,
-        descricao: document.getElementById('descricaoCurso').value,
-        motivo_modelo: document.getElementById('motivoCurso').value,
-        restricoes: document.getElementById('restricoesCurso').value,
-        profissional_id: document.getElementById('selectProfissional').value // VÍNCULO ADICIONADO!
-    };
+        const payload = {
+            nome: document.getElementById('nomeCurso').value,
+            descricao: document.getElementById('descricaoCurso').value,
+            motivo_modelo: document.getElementById('motivoCurso').value,
+            restricoes: document.getElementById('restricoesCurso').value,
+            foto_url: document.getElementById('fotoCurso') ? document.getElementById('fotoCurso').value : '',
+            localizacao: document.getElementById('localCurso') ? document.getElementById('localCurso').value : 'SENAC',
+            profissional_id: document.getElementById('selectProfissional').value
+        };
 
-    try {
-        const response = await fetch(`${API_URL}/cursos`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify(payload)
-        });
+        try {
+            const response = await fetch(`${API_URL}/cursos`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(payload)
+            });
 
-        const data = await response.json();
+            const data = await response.json();
 
-        if (response.ok) {
-            msgDiv.innerHTML = `<span class="text-success">${data.mensagem}</span>`;
-            formCurso.reset();
-            carregarCursosNoSelect();
-        } else {
-            msgDiv.innerHTML = `<span class="text-danger">${data.erro}</span>`;
+            if (response.ok) {
+                msgDiv.innerHTML = `<span class="text-success">${data.mensagem}</span>`;
+                formCurso.reset();
+                carregarCursosNoSelect();
+                carregarCursosAdmin();
+                carregarMetricas();
+            } else {
+                msgDiv.innerHTML = `<span class="text-danger">${data.erro}</span>`;
+            }
+        } catch (error) {
+            msgDiv.innerHTML = '<span class="text-danger">Erro de ligação.</span>';
         }
-    } catch (error) {
-        msgDiv.innerHTML = '<span class="text-danger">Erro de ligação.</span>';
-    }
-});
+    });
+}
 
 async function carregarCursosNoSelect(){
     const select = document.getElementById('selectCurso');
@@ -398,27 +404,22 @@ async function excluirUsuario(id, nome){
 // Instância do Modal de Edição (Adicione no topo junto às outras variáveis)
 let modalEditarCursoInstance = null;
 
-// Esperar o DOM carregar para instanciar o Modal
+// Esperar o DOM carregar para instanciar o Modal e travar datas passadas
 document.addEventListener("DOMContentLoaded", () => {
     const modalEl = document.getElementById('modalEditarCurso');
     if (modalEl) modalEditarCursoInstance = new bootstrap.Modal(modalEl);
 
+    // Trava para impedir seleção de horários no passado
+    const inputDataHora = document.getElementById('dataHora');
+    if (inputDataHora) {
+        const agora = new Date();
+        agora.setMinutes(agora.getMinutes() - agora.getTimezoneOffset());
+        inputDataHora.min = agora.toISOString().slice(0, 16);
+    }
+
     // Iniciar carregamentos
     carregarCursosAdmin();
 });
-
-// ==========================================
-// 1. ATUALIZAR A CRIAÇÃO DE CURSOS
-// ==========================================
-// Procure o seu 'formCurso.addEventListener' e atualize o payload para incluir os novos campos:
-/*
-    const payload = {
-        // ... (mantenha os campos existentes)
-        foto_url: document.getElementById('fotoCurso').value,
-        localizacao: document.getElementById('localCurso').value,
-        profissional_id: document.getElementById('selectProfissional').value
-    };
-*/
 
 // ==========================================
 // 2. LISTAR CURSOS NA TABELA DE GESTÃO
