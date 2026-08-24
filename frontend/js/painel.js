@@ -29,7 +29,15 @@ async function carregarCursos(){
 
         divCursos.innerHTML = '';
         if (!Array.isArray(cursos) || cursos.length === 0) {
-            divCursos.innerHTML = '<div class="col-span-full text-center py-12 text-slate-400 text-sm">Nenhum serviço disponível de momento.</div>';
+            divCursos.innerHTML = `
+                <div class="col-span-full bg-white rounded-3xl border border-slate-200 p-8 sm:p-12 text-center">
+                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-amber-50 text-amber-600 text-2xl mb-4">
+                        ✨
+                    </div>
+                    <h3 class="text-base font-bold text-slate-800 mb-1">Nenhum serviço disponível no momento</h3>
+                    <p class="text-xs text-slate-500 max-w-sm mx-auto">Novos cursos e horários práticos para modelos são abertos frequentemente pela coordenação.</p>
+                </div>
+            `;
             return;
         }
 
@@ -178,6 +186,7 @@ async function realizarAgendamento(disponibilidadeId){
     const msgDiv = document.getElementById('msgAgendamento');
     if (!disponibilidadeId) {
         msgDiv.innerHTML = '<span class="text-rose-600">Por favor, selecione um horário.</span>';
+        if (window.showToast) window.showToast('Por favor, selecione um horário disponível.', 'warning');
         return;
     }
 
@@ -193,13 +202,16 @@ async function realizarAgendamento(disponibilidadeId){
 
         if (response.ok) {
             msgDiv.innerHTML = `<span class="text-emerald-600 font-bold">Agendamento concluído com sucesso!</span>`;
+            if (window.showToast) window.showToast('Presença confirmada com sucesso! Consulte seus agendamentos.', 'success');
             carregarMeusAgendamentos();
-            setTimeout(() => modalAgendamento.hide(), 1500);
+            setTimeout(() => modalAgendamento.hide(), 1200);
         } else {
             msgDiv.innerHTML = `<span class="text-rose-600">${data.erro}</span>`;
+            if (window.showToast) window.showToast(data.erro || 'Erro ao agendar horário.', 'error');
         }
     } catch (error) {
         msgDiv.innerHTML = '<span class="text-rose-600">Erro de conexão com o servidor.</span>';
+        if (window.showToast) window.showToast('Erro de conexão com o servidor.', 'error');
     }
 }
 
@@ -216,7 +228,18 @@ async function carregarMeusAgendamentos(){
 
         divAgendamentos.innerHTML = '';
         if (!Array.isArray(agendamentos) || agendamentos.length === 0) {
-            divAgendamentos.innerHTML = '<div class="col-span-full text-center py-10 text-slate-400 text-sm">Não possui nenhum agendamento ativo de momento.</div>';
+            divAgendamentos.innerHTML = `
+                <div class="col-span-full bg-white rounded-3xl border border-slate-200 p-8 sm:p-12 text-center">
+                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-brand-50 text-brand-600 text-2xl mb-4">
+                        📅
+                    </div>
+                    <h3 class="text-base font-bold text-slate-800 mb-1">Você ainda não tem nenhum agendamento</h3>
+                    <p class="text-xs text-slate-500 max-w-sm mx-auto mb-5">Escolha um dos cursos práticos disponíveis na vitrine abaixo e confirme sua participação como modelo.</p>
+                    <a href="#vitrine" class="btn-brand text-xs sm:text-sm py-2.5 px-5">
+                        Explorar Cursos Disponíveis
+                    </a>
+                </div>
+            `;
             return;
         }
 
@@ -273,12 +296,15 @@ async function cancelarAgendamento(agendamentoId){
         const data = await response.json();
 
         if (response.ok) {
+            if (window.showToast) window.showToast('Inscrição cancelada com sucesso.', 'info');
             carregarMeusAgendamentos();
         } else {
             msgDiv.innerHTML = `<span class="text-rose-600 font-bold">${data.erro}</span>`;
+            if (window.showToast) window.showToast(data.erro || 'Erro ao cancelar inscrição.', 'error');
         }
     } catch (error) {
         msgDiv.innerHTML = '<span class="text-rose-600">Erro ao processar pedido.</span>';
+        if (window.showToast) window.showToast('Erro ao processar cancelamento.', 'error');
     }
 }
 
@@ -320,15 +346,18 @@ if (formFeedback) {
 
             if (response.ok) {
                 msgDiv.innerHTML = `<span class="text-emerald-600 font-bold">${data.mensagem}</span>`;
+                if (window.showToast) window.showToast('Obrigado pela sua avaliação!', 'success');
                 setTimeout(() => {
                     modalFeedback.hide();
                     carregarMeusFeedbacks();
-                }, 1500);
+                }, 1200);
             } else {
                 msgDiv.innerHTML = `<span class="text-rose-600 font-bold">${data.erro}</span>`;
+                if (window.showToast) window.showToast(data.erro || 'Erro ao enviar avaliação.', 'error');
             }
         } catch (error) {
             msgDiv.innerHTML = '<span class="text-rose-600">Erro de ligação.</span>';
+            if (window.showToast) window.showToast('Erro de conexão com o servidor.', 'error');
         }
     });
 }
@@ -346,7 +375,15 @@ async function carregarMeusFeedbacks(){
 
         divFeedbacks.innerHTML = '';
         if (!Array.isArray(feedbacks) || feedbacks.length === 0) {
-            divFeedbacks.innerHTML = '<div class="col-span-full text-center py-10 text-slate-400 text-sm">Ainda não realizou nenhuma avaliação.</div>';
+            divFeedbacks.innerHTML = `
+                <div class="col-span-full bg-white rounded-3xl border border-slate-200 p-8 sm:p-12 text-center">
+                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-600 text-2xl mb-4">
+                        💬
+                    </div>
+                    <h3 class="text-base font-bold text-slate-800 mb-1">Nenhuma avaliação realizada ainda</h3>
+                    <p class="text-xs text-slate-500 max-w-sm mx-auto">Após participar de um curso prático e o professor concluir o atendimento, você poderá avaliar a experiência aqui.</p>
+                </div>
+            `;
             return;
         }
 

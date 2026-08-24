@@ -33,9 +33,9 @@ async function carregarMinhasTurmas() {
     });
 
     if (response.status === 401 || response.status === 403) {
-      alert("Sessão expirada ou acesso não autorizado.");
+      if (window.showToast) window.showToast("Sessão expirada ou acesso não autorizado.", "error");
       localStorage.removeItem("token");
-      window.location.href = "index.html";
+      setTimeout(() => (window.location.href = "index.html"), 1000);
       return;
     }
 
@@ -43,8 +43,15 @@ async function carregarMinhasTurmas() {
     accordion.innerHTML = "";
 
     if (!Array.isArray(cursos) || cursos.length === 0) {
-      accordion.innerHTML =
-        '<div class="p-8 text-center bg-white rounded-3xl border border-slate-200 text-sm text-slate-500">Nenhum curso ativo vinculado ao seu perfil de momento.</div>';
+      accordion.innerHTML = `
+        <div class="p-8 sm:p-12 text-center bg-white rounded-3xl border border-slate-200">
+          <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-brand-50 text-brand-600 text-2xl mb-4">
+            👨‍🏫
+          </div>
+          <h3 class="text-base font-bold text-slate-800 mb-1">Nenhuma turma ativa vinculada ao seu perfil</h3>
+          <p class="text-xs text-slate-500 max-w-md mx-auto">Assim que a coordenação vincular novos cursos ou abrir horários para as suas turmas, eles serão exibidos aqui.</p>
+        </div>
+      `;
       return;
     }
 
@@ -186,13 +193,14 @@ async function concluirServico(agendamentoId) {
     );
 
     if (response.ok) {
+      if (window.showToast) window.showToast("Presença registrada e atendimento concluído!", "success");
       carregarMinhasTurmas();
     } else {
       const data = await response.json();
-      alert(data.erro || "Erro ao concluir agendamento.");
+      if (window.showToast) window.showToast(data.erro || "Erro ao concluir agendamento.", "error");
     }
   } catch (error) {
-    alert("Erro ao conectar com o servidor.");
+    if (window.showToast) window.showToast("Erro ao conectar com o servidor.", "error");
   }
 }
 
@@ -216,13 +224,14 @@ async function cancelarAluno(agendamentoId, nome) {
     );
 
     if (response.ok) {
+      if (window.showToast) window.showToast(`Inscrição de ${nome} cancelada. A vaga foi reaberta.`, "info");
       carregarMinhasTurmas();
     } else {
       const data = await response.json();
-      alert(data.erro || "Erro ao cancelar inscrição.");
+      if (window.showToast) window.showToast(data.erro || "Erro ao cancelar inscrição.", "error");
     }
   } catch (error) {
-    alert("Erro na conexão com o servidor.");
+    if (window.showToast) window.showToast("Erro na conexão com o servidor.", "error");
   }
 }
 

@@ -10,14 +10,13 @@ const API_URL =
 const formLogin = document.getElementById("formLogin");
 if (formLogin) {
   formLogin.addEventListener("submit", async (e) => {
-    e.preventDefault(); // Evita que a página recarregue ao submeter o formulário
+    e.preventDefault();
 
     const email = document.getElementById("email").value;
     const senha = document.getElementById("senha").value;
     const msgErro = document.getElementById("mensagemErro");
 
     try {
-      // Fazendo a requisição POST para o Back-end
       const response = await fetch(`${API_URL}/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -29,22 +28,27 @@ if (formLogin) {
       if (response.ok) {
         localStorage.setItem("token", data.token);
 
-        // Redirecionamento Inteligente baseado no Perfil (RBAC)
+        if (window.showToast) window.showToast("Login realizado com sucesso! Redirecionando...", "success");
+
         const perfil = data.utilizador.perfil;
 
-        if (perfil === "admin" || perfil === "coordenador") {
-          window.location.href = "admin.html";
-        } else if (perfil === "profissional") {
-          window.location.href = "profissional.html";
-        } else {
-          window.location.href = "painel.html"; // Candidato/Modelo
-        }
+        setTimeout(() => {
+          if (perfil === "admin" || perfil === "coordenador") {
+            window.location.href = "admin.html";
+          } else if (perfil === "profissional") {
+            window.location.href = "profissional.html";
+          } else {
+            window.location.href = "painel.html"; // Candidato/Modelo
+          }
+        }, 500);
       } else {
+        const erroMsg = data.erro || "Credenciais inválidas.";
         if (msgErro) {
-          msgErro.textContent = data.erro || "Credenciais inválidas.";
+          msgErro.textContent = erroMsg;
           msgErro.classList.remove("hidden");
           msgErro.classList.remove("d-none");
         }
+        if (window.showToast) window.showToast(erroMsg, "error");
       }
     } catch (error) {
       console.error("Erro na requisição:", error);
@@ -53,6 +57,7 @@ if (formLogin) {
         msgErro.classList.remove("hidden");
         msgErro.classList.remove("d-none");
       }
+      if (window.showToast) window.showToast("Erro de conexão com o servidor.", "error");
     }
   });
 }
@@ -67,7 +72,7 @@ if (formCadastro) {
     const email = document.getElementById("email").value;
     const telefone = document.getElementById("telefone").value;
     const senha = document.getElementById("senha").value;
-    const confirmar_senha = document.getElementById("confirmar_senha").value; // Captura o novo campo
+    const confirmar_senha = document.getElementById("confirmar_senha").value;
 
     const consentimento_termos = document.getElementById("termoUso").checked
       ? 1
@@ -78,14 +83,13 @@ if (formCadastro) {
 
     const msgDiv = document.getElementById("mensagemCadastro");
 
-    // [NOVIDADE V2] Validação no Front-end (Client-Side Validation)
     if (senha !== confirmar_senha) {
-      msgDiv.innerHTML = `<span class="text-danger fw-bold">Erro: As palavras-passe não coincidem. Verifique a digitação.</span>`;
-      return; // O comando 'return' para a execução aqui, impedindo o 'fetch' abaixo.
+      msgDiv.innerHTML = `<span class="text-rose-600 font-bold">Erro: As palavras-passe não coincidem.</span>`;
+      if (window.showToast) window.showToast("As palavras-passe não coincidem.", "warning");
+      return;
     }
 
     try {
-      // Se as senhas forem iguais, enviamos o payload completo para o Back-end
       const response = await fetch(`${API_URL}/registrar`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -103,16 +107,19 @@ if (formCadastro) {
       const data = await response.json();
 
       if (response.ok) {
-        msgDiv.innerHTML = `<span class="text-success fw-bold">Conta criada com sucesso! A redirecionar para o login...</span>`;
+        msgDiv.innerHTML = `<span class="text-emerald-600 font-bold">Conta criada com sucesso! A redirecionar para o login...</span>`;
+        if (window.showToast) window.showToast("Conta criada com sucesso! Redirecionando para o login...", "success");
         setTimeout(() => {
           window.location.href = "index.html";
-        }, 2000);
+        }, 1500);
       } else {
-        msgDiv.innerHTML = `<span class="text-danger fw-bold">${data.erro}</span>`;
+        msgDiv.innerHTML = `<span class="text-rose-600 font-bold">${data.erro}</span>`;
+        if (window.showToast) window.showToast(data.erro || "Erro ao criar conta.", "error");
       }
     } catch (error) {
       console.error("Erro na requisição:", error);
-      msgDiv.innerHTML = `<span class="text-danger fw-bold">Erro de conexão com o servidor.</span>`;
+      msgDiv.innerHTML = `<span class="text-rose-600 font-bold">Erro de conexão com o servidor.</span>`;
+      if (window.showToast) window.showToast("Erro de conexão com o servidor.", "error");
     }
   });
 }
@@ -125,7 +132,7 @@ if (formEsqueci) {
     const msgDiv = document.getElementById("msgRecuperacao");
     const email = document.getElementById("emailRecuperacao").value;
 
-    msgDiv.innerHTML = '<span class="text-primary">A processar...</span>';
+    msgDiv.innerHTML = '<span class="text-brand-600 font-medium">A processar...</span>';
 
     try {
       const response = await fetch(`${API_URL}/esqueci-senha`, {
@@ -134,10 +141,11 @@ if (formEsqueci) {
         body: JSON.stringify({ email }),
       });
       const data = await response.json();
-      msgDiv.innerHTML = `<span class="text-success">${data.mensagem}</span>`;
-      // DICA PARA TESTE LOCAL: O link será impresso no terminal do VS Code onde roda o Node!
+      msgDiv.innerHTML = `<span class="text-emerald-600 font-bold">${data.mensagem}</span>`;
+      if (window.showToast) window.showToast(data.mensagem || "Instruções enviadas com sucesso!", "success");
     } catch (error) {
-      msgDiv.innerHTML = '<span class="text-danger">Erro de conexão.</span>';
+      msgDiv.innerHTML = '<span class="text-rose-600">Erro de conexão.</span>';
+      if (window.showToast) window.showToast("Erro de conexão com o servidor.", "error");
     }
   });
 }
@@ -151,19 +159,20 @@ if (formRedefinir) {
     const nova_senha = document.getElementById("novaSenha").value;
     const confirmar_senha = document.getElementById("confirmarNovaSenha").value;
 
-    // Capturar o token da URL (ex: ?token=abc123xyz)
     const params = new URLSearchParams(window.location.search);
     const token = params.get("token");
 
     if (!token) {
       msgDiv.innerHTML =
-        '<span class="text-danger">Link de recuperação inválido (Token ausente).</span>';
+        '<span class="text-rose-600">Link de recuperação inválido (Token ausente).</span>';
+      if (window.showToast) window.showToast("Link de recuperação inválido.", "error");
       return;
     }
 
     if (nova_senha !== confirmar_senha) {
       msgDiv.innerHTML =
-        '<span class="text-danger">As palavras-passe não coincidem.</span>';
+        '<span class="text-rose-600">As palavras-passe não coincidem.</span>';
+      if (window.showToast) window.showToast("As palavras-passe não coincidem.", "warning");
       return;
     }
 
@@ -177,13 +186,16 @@ if (formRedefinir) {
       const data = await response.json();
 
       if (response.ok) {
-        msgDiv.innerHTML = `<span class="text-success">${data.mensagem} A redirecionar...</span>`;
-        setTimeout(() => (window.location.href = "index.html"), 3000);
+        msgDiv.innerHTML = `<span class="text-emerald-600 font-bold">${data.mensagem} A redirecionar...</span>`;
+        if (window.showToast) window.showToast("Palavra-passe atualizada com sucesso!", "success");
+        setTimeout(() => (window.location.href = "index.html"), 2000);
       } else {
-        msgDiv.innerHTML = `<span class="text-danger">${data.erro}</span>`;
+        msgDiv.innerHTML = `<span class="text-rose-600 font-bold">${data.erro}</span>`;
+        if (window.showToast) window.showToast(data.erro || "Erro ao redefinir palavra-passe.", "error");
       }
     } catch (error) {
-      msgDiv.innerHTML = '<span class="text-danger">Erro de conexão.</span>';
+      msgDiv.innerHTML = '<span class="text-rose-600">Erro de conexão.</span>';
+      if (window.showToast) window.showToast("Erro de conexão com o servidor.", "error");
     }
   });
 }

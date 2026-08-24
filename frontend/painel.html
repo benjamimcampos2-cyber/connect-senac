@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="h-full bg-slate-50">
+<html lang="pt-BR" class="h-full bg-slate-50 scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -55,7 +55,17 @@
                 </div>
             </div>
             <div id="listaMeusAgendamentos" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                <div class="col-span-full text-center py-10 text-slate-400 text-sm">A carregar os seus agendamentos...</div>
+                <!-- Skeleton Loader Inicial -->
+                <div class="bg-white rounded-3xl border border-slate-200 p-6 space-y-4 animate-pulse">
+                    <div class="h-4 bg-slate-200 rounded-md w-2/3"></div>
+                    <div class="h-3 bg-slate-100 rounded-md w-1/2"></div>
+                    <div class="h-9 bg-slate-100 rounded-xl w-full"></div>
+                </div>
+                <div class="bg-white rounded-3xl border border-slate-200 p-6 space-y-4 animate-pulse hidden md:block">
+                    <div class="h-4 bg-slate-200 rounded-md w-2/3"></div>
+                    <div class="h-3 bg-slate-100 rounded-md w-1/2"></div>
+                    <div class="h-9 bg-slate-100 rounded-xl w-full"></div>
+                </div>
             </div>
         </section>
 
@@ -71,7 +81,31 @@
                 </div>
             </div>
             <div id="listaCursos" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div class="col-span-full text-center py-10 text-slate-400 text-sm">A carregar o catálogo de serviços...</div>
+                <!-- Skeleton Loader de Cursos -->
+                <div class="bg-white rounded-3xl border border-slate-200 overflow-hidden animate-pulse">
+                    <div class="h-48 bg-slate-200"></div>
+                    <div class="p-6 space-y-3">
+                        <div class="h-4 bg-slate-200 rounded-md w-3/4"></div>
+                        <div class="h-3 bg-slate-100 rounded-md w-full"></div>
+                        <div class="h-3 bg-slate-100 rounded-md w-2/3"></div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-3xl border border-slate-200 overflow-hidden animate-pulse hidden md:block">
+                    <div class="h-48 bg-slate-200"></div>
+                    <div class="p-6 space-y-3">
+                        <div class="h-4 bg-slate-200 rounded-md w-3/4"></div>
+                        <div class="h-3 bg-slate-100 rounded-md w-full"></div>
+                        <div class="h-3 bg-slate-100 rounded-md w-2/3"></div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-3xl border border-slate-200 overflow-hidden animate-pulse hidden lg:block">
+                    <div class="h-48 bg-slate-200"></div>
+                    <div class="p-6 space-y-3">
+                        <div class="h-4 bg-slate-200 rounded-md w-3/4"></div>
+                        <div class="h-3 bg-slate-100 rounded-md w-full"></div>
+                        <div class="h-3 bg-slate-100 rounded-md w-2/3"></div>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -84,7 +118,12 @@
                 </div>
             </div>
             <div id="listaMeusFeedbacks" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                <div class="col-span-full text-center py-10 text-slate-400 text-sm">A carregar o seu histórico...</div>
+                <!-- Skeleton Loader de Feedbacks -->
+                <div class="bg-white rounded-3xl border border-slate-200 p-6 space-y-3 animate-pulse">
+                    <div class="h-4 bg-slate-200 rounded-md w-1/2"></div>
+                    <div class="h-3 bg-slate-100 rounded-md w-1/3"></div>
+                    <div class="h-3 bg-slate-100 rounded-md w-full"></div>
+                </div>
             </div>
         </section>
 
@@ -208,6 +247,7 @@
 
     <!-- Bootstrap JS Bundle para suporte funcional a modais -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/toast.js"></script>
     <script src="js/painel.js"></script>
 </body>
 </html>

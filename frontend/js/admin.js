@@ -190,14 +190,15 @@ async function alterarPerfil(idUsuario, novoPerfil){
         });
 
         if (response.ok) {
+            if (window.showToast) window.showToast(`Perfil atualizado para ${novoPerfil.toUpperCase()}`, 'success');
             carregarUtilizadores();
         } else {
             const data = await response.json();
-            alert(data.erro);
+            if (window.showToast) window.showToast(data.erro || 'Erro ao alterar perfil.', 'error');
             carregarUtilizadores();
         }
     } catch (error) {
-        alert("Erro ao alterar o perfil.");
+        if (window.showToast) window.showToast("Erro ao alterar o perfil.", "error");
         carregarUtilizadores();
     }
 }
@@ -217,14 +218,15 @@ async function toggleBloqueio(id, statusAtual){
         });
 
         if (response.ok) {
+            if (window.showToast) window.showToast(`Utilizador ${statusAtual ? 'desbloqueado' : 'bloqueado'} com sucesso.`, 'info');
             carregarUtilizadores();
             carregarMetricas();
         } else {
             const err = await response.json();
-            alert(err.erro);
+            if (window.showToast) window.showToast(err.erro || 'Erro na operação.', 'error');
         }
     } catch (error) {
-        alert("Erro de ligação.");
+        if (window.showToast) window.showToast("Erro de ligação.", "error");
     }
 }
 
@@ -260,13 +262,16 @@ if(formColaborador) {
 
             if (response.ok) {
                 msgDiv.innerHTML = `<span class="text-emerald-600 font-bold">${data.mensagem}</span>`;
+                if (window.showToast) window.showToast('Colaborador cadastrado com sucesso!', 'success');
                 formColaborador.reset();
                 carregarUtilizadores();
             } else {
                 msgDiv.innerHTML = `<span class="text-rose-600 font-bold">${data.erro}</span>`;
+                if (window.showToast) window.showToast(data.erro || 'Erro ao criar colaborador.', 'error');
             }
         } catch (error) {
             msgDiv.innerHTML = '<span class="text-rose-600">Erro de ligação com o servidor.</span>';
+            if (window.showToast) window.showToast('Erro de conexão.', 'error');
         }
     });
 }
@@ -305,15 +310,18 @@ if (formCurso) {
 
             if (response.ok) {
                 msgDiv.innerHTML = `<span class="text-emerald-600 font-bold">${data.mensagem}</span>`;
+                if (window.showToast) window.showToast('Curso cadastrado com sucesso!', 'success');
                 formCurso.reset();
                 carregarCursosNoSelect();
                 carregarCursosAdmin();
                 carregarMetricas();
             } else {
                 msgDiv.innerHTML = `<span class="text-rose-600 font-bold">${data.erro}</span>`;
+                if (window.showToast) window.showToast(data.erro || 'Erro ao cadastrar curso.', 'error');
             }
         } catch (error) {
             msgDiv.innerHTML = '<span class="text-rose-600">Erro de ligação.</span>';
+            if (window.showToast) window.showToast('Erro de conexão com o servidor.', 'error');
         }
     });
 }
@@ -366,13 +374,16 @@ if (formVagas) {
 
             if (response.ok) {
                 msgDiv.innerHTML = `<span class="text-emerald-600 font-bold">${data.mensagem}</span>`;
+                if (window.showToast) window.showToast('Horário e vagas disponibilizados com sucesso!', 'success');
                 formVagas.reset();
                 carregarMetricas();
             } else {
                 msgDiv.innerHTML = `<span class="text-rose-600 font-bold">${data.erro}</span>`;
+                if (window.showToast) window.showToast(data.erro || 'Erro ao abrir vagas.', 'error');
             }
         } catch (error) {
             msgDiv.innerHTML = '<span class="text-rose-600">Erro de ligação.</span>';
+            if (window.showToast) window.showToast('Erro de conexão.', 'error');
         }
     });
 }
@@ -407,14 +418,15 @@ async function excluirUsuario(id, nome){
         });
 
         if (response.ok) {
+            if (window.showToast) window.showToast(`Conta de ${nome} excluída com sucesso.`, 'info');
             carregarUtilizadores();
             carregarMetricas();
         } else {
             const err = await response.json();
-            alert(err.erro);
+            if (window.showToast) window.showToast(err.erro || 'Erro ao excluir usuário.', 'error');
         }
     } catch (error) {
-        alert("Erro na conexão com o servidor.");
+        if (window.showToast) window.showToast("Erro na conexão com o servidor.", "error");
     }
 }
 
@@ -450,7 +462,7 @@ async function carregarCursosAdmin(){
 
         tbody.innerHTML = '';
         if (!Array.isArray(cursos) || cursos.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" class="text-center text-slate-400 py-6">Nenhum curso cadastrado.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center text-slate-400 py-6">Nenhum curso cadastrado ainda.</td></tr>';
             return;
         }
 
@@ -499,13 +511,14 @@ async function arquivarCurso(id, nome){
         });
 
         if (response.ok) {
+            if (window.showToast) window.showToast(`Curso "${nome}" arquivado com sucesso.`, 'info');
             carregarCursosAdmin();
             carregarCursosNoSelect();
         } else {
-            alert('Erro ao arquivar curso.');
+            if (window.showToast) window.showToast('Erro ao arquivar curso.', 'error');
         }
     } catch (error) {
-        alert('Erro de conexão.');
+        if (window.showToast) window.showToast('Erro de conexão.', 'error');
     }
 }
 
@@ -553,14 +566,17 @@ if (formEditarCurso) {
 
             if (response.ok) {
                 msgDiv.innerHTML = '<span class="text-emerald-600 font-bold">Atualizado com sucesso!</span>';
+                if (window.showToast) window.showToast('Curso atualizado com sucesso!', 'success');
                 carregarCursosAdmin();
                 carregarCursosNoSelect();
-                setTimeout(() => modalEditarCursoInstance.hide(), 1500);
+                setTimeout(() => modalEditarCursoInstance.hide(), 1200);
             } else {
                 msgDiv.innerHTML = '<span class="text-rose-600 font-bold">Erro ao atualizar.</span>';
+                if (window.showToast) window.showToast('Erro ao atualizar curso.', 'error');
             }
         } catch (error) {
             msgDiv.innerHTML = '<span class="text-rose-600">Erro de conexão.</span>';
+            if (window.showToast) window.showToast('Erro de conexão.', 'error');
         }
     });
 }
@@ -581,7 +597,13 @@ async function carregarPautasGlobais(){
         accordion.innerHTML = '';
 
         if (!Array.isArray(cursos) || cursos.length === 0) {
-            accordion.innerHTML = '<div class="p-8 text-center text-slate-400 text-sm bg-slate-50 rounded-2xl border border-slate-100">Nenhuma pauta ativa no momento.</div>';
+            accordion.innerHTML = `
+                <div class="p-8 sm:p-12 text-center text-slate-400 text-sm bg-slate-50 rounded-3xl border border-slate-200/80">
+                    <div class="text-2xl mb-2">📅</div>
+                    <div class="font-bold text-slate-700">Nenhuma pauta ativa no momento</div>
+                    <p class="text-xs text-slate-400 mt-1">Crie cursos e abra horários para visualizar as listas de presença globais.</p>
+                </div>
+            `;
             return;
         }
 
