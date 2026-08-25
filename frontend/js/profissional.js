@@ -25,6 +25,25 @@ document.getElementById("btnSair").addEventListener("click", () => {
   window.location.href = "index.html";
 });
 
+window.toggleCollapse = function(targetId, btn) {
+  const el = document.getElementById(targetId);
+  if (!el) return;
+  const isShown = el.classList.contains("show");
+  if (isShown) {
+    el.classList.remove("show");
+    if (btn) {
+      const badge = btn.querySelector(".collapse-badge");
+      if (badge) badge.textContent = "Ver Pauta ↓";
+    }
+  } else {
+    el.classList.add("show");
+    if (btn) {
+      const badge = btn.querySelector(".collapse-badge");
+      if (badge) badge.textContent = "Ocultar Pauta ↑";
+    }
+  }
+};
+
 async function carregarMinhasTurmas() {
   const accordion = document.getElementById("accordionTurmas");
   try {
@@ -150,19 +169,20 @@ async function carregarMinhasTurmas() {
       }
 
       const itemOpen = index === 0 ? "show" : "";
+      const badgeText = index === 0 ? "Ocultar Pauta ↑" : "Ver Pauta ↓";
 
       accordion.innerHTML += `
         <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden transition-all">
           <h2>
-            <button class="w-full flex items-center justify-between p-5 text-left font-bold text-slate-900 hover:bg-slate-50 transition" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${curso.id}">
+            <button class="w-full flex items-center justify-between p-5 text-left font-bold text-slate-900 hover:bg-slate-50 transition cursor-pointer" type="button" onclick="toggleCollapse('collapse${curso.id}', this)">
               <div class="flex items-center gap-3">
                 <span class="text-xl">📘</span>
                 <span class="text-base">${curso.nome}</span>
               </div>
-              <span class="text-xs text-brand-600 font-semibold bg-brand-50 px-3 py-1 rounded-lg">Ver Pauta ↓</span>
+              <span class="collapse-badge text-xs text-brand-600 font-semibold bg-brand-50 px-3 py-1 rounded-lg">${badgeText}</span>
             </button>
           </h2>
-          <div id="collapse${curso.id}" class="collapse ${itemOpen} border-t border-slate-100" data-bs-parent="#accordionTurmas">
+          <div id="collapse${curso.id}" class="collapse ${itemOpen} border-t border-slate-100">
             <div class="p-5 sm:p-6 bg-slate-50/50 space-y-5">
               ${horariosHTML || '<p class="text-xs text-slate-400 text-center py-4">Sem horários abertos para este curso.</p>'}
             </div>
