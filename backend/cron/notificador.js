@@ -7,7 +7,8 @@ const supabase = require('../config/database');
 // Cache em memória para evitar múltiplos disparos no mesmo ciclo/dia
 const lembretesEnviados = new Set(); // Chaves: `${agendamentoId}_24h`, `${agendamentoId}_3h`
 
-cron.schedule('* * * * *', async () => {
+if (process.env.NODE_ENV !== 'test') {
+    cron.schedule('* * * * *', async () => {
     try {
         const agora = new Date();
 
@@ -75,6 +76,7 @@ cron.schedule('* * * * *', async () => {
     } catch (error) {
         console.error('❌ [CRON ERRO] Falha ao varrer notificações:', error.message);
     }
-});
+    });
 
-console.log('⏳ Motor de Notificações (CRON) ativado e a aguardar...');
+    console.log('⏳ Motor de Notificações (CRON) ativado e a aguardar...');
+}

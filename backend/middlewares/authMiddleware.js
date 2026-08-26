@@ -11,7 +11,11 @@ module.exports = async (req, res, next) => {
 
     try {
         const tokenLimpo = token.replace('Bearer ', '');
-        const decodificado = jwt.verify(tokenLimpo, process.env.JWT_SECRET || 'chave_super_secreta_senac');
+        const secret = process.env.JWT_SECRET;
+        if (!secret) {
+            return res.status(500).json({ erro: 'Erro interno de configuração de segurança do servidor.' });
+        }
+        const decodificado = jwt.verify(tokenLimpo, secret);
 
         // CONSULTA DE SEGURANÇA EM TEMPO REAL:
         const { data: usuario, error } = await supabase

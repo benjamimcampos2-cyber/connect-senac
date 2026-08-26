@@ -9,6 +9,21 @@ const crypto = require('crypto'); // Biblioteca nativa do Node.js para criptogra
 exports.registrar = async (req, res) => {
     const { nome, email, telefone, senha, confirmar_senha, consentimento_termos, consentimento_imagem } = req.body;
 
+    if (!nome || !email || !senha || !confirmar_senha) {
+        return res.status(400).json({ erro: 'Todos os campos obrigatórios devem ser preenchidos.' });
+    }
+
+    // Validação de formato de e-mail via Regex
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        return res.status(400).json({ erro: 'Formato de e-mail inválido.' });
+    }
+
+    // Validação de tamanho mínimo de senha
+    if (senha.length < 6) {
+        return res.status(400).json({ erro: 'A palavra-passe deve conter no mínimo 6 caracteres.' });
+    }
+
     // [Funcionalidade 1.2] Validação de Confirmação de Palavra-passe
     if (senha !== confirmar_senha) {
         return res.status(400).json({ erro: 'As palavras-passe não coincidem.' });
@@ -41,9 +56,9 @@ exports.registrar = async (req, res) => {
             .from('usuarios')
             .insert([
                 {
-                    nome,
-                    email,
-                    telefone,
+                    nome: nome.trim(),
+                    email: email.trim().toLowerCase(),
+                    telefone: telefone ? telefone.trim() : null,
                     senha: senhaHash,
                     consentimento_termos: consentimento_termos === 1 || consentimento_termos === true,
                     consentimento_imagem: consentimento_imagem === 1 || consentimento_imagem === true
@@ -64,12 +79,16 @@ exports.registrar = async (req, res) => {
 exports.login = async (req, res) => {
     const { email, senha } = req.body;
 
+    if (!email || !senha) {
+        return res.status(400).json({ erro: 'E-mail e palavra-passe são obrigatórios.' });
+    }
+
     try {
         // Procurar o utilizador pelo e-mail no Supabase
         const { data: utilizador, error: erroBusca } = await supabase
             .from('usuarios')
             .select('*')
-            .eq('email', email)
+            .eq('email', email.trim().toLowerCase())
             .maybeSingle();
 
         if (erroBusca) throw erroBusca;
@@ -84,11 +103,16 @@ exports.login = async (req, res) => {
         const senhaValida = await bcrypt.compare(senha, utilizador.senha);
         if (!senhaValida) return res.status(401).json({ erro: 'Palavra-passe incorreta.' });
 
+        const secret = process.env.JWT_SECRET;
+        if (!secret) {
+            return res.status(500).json({ erro: 'Erro de configuração de segurança do servidor.' });
+        }
+
         // Gerar o Token de Autenticação (JWT)
         // Guardamos o 'id' e o 'perfil' (role) dentro do token para o sistema de permissões (RBAC)
         const token = jwt.sign(
             { id: utilizador.id, email: utilizador.email, perfil: utilizador.perfil },
-            process.env.JWT_SECRET || 'chave_super_secreta_senac',
+            secret,
             { expiresIn: '24h' }
         );
 
