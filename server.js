@@ -24,13 +24,15 @@ if (!process.env.JWT_SECRET) {
 // Middlewares de Segurança
 app.use(helmet({
     contentSecurityPolicy: false, // Permite CDNs de Tailwind e Bootstrap utilizados pelo projeto
-    crossOriginResourcePolicy: { policy: "cross-origin" }
+    crossOriginResourcePolicy: false,
+    crossOriginEmbedderPolicy: false,
+    crossOriginOpenerPolicy: false
 }));
 
 // Rate Limiting para Prevenção de Ataques de Força Bruta (OWASP)
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // Janela de 15 minutos
-    max: 30, // Máximo de 30 tentativas por IP
+    max: 100, // Máximo de 100 tentativas por IP
     standardHeaders: true,
     legacyHeaders: false,
     message: { erro: 'Muitas tentativas a partir deste IP. Por favor, aguarde 15 minutos.' }

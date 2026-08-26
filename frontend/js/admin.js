@@ -55,6 +55,12 @@ async function carregarMetricas(){
         const response = await fetch(`${API_URL}/dashboard/metricas`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
+        if (response.status === 401 || response.status === 403) {
+            localStorage.removeItem('token');
+            if (window.showToast) window.showToast('Sessão expirada. Redirecionando para login...', 'error');
+            setTimeout(() => window.location.href = 'index.html', 1000);
+            return;
+        }
         if (response.ok) {
             const data = await response.json();
             document.getElementById('metricUsuarios').textContent = data.totalUsuarios;
@@ -77,6 +83,12 @@ async function carregarUtilizadores(){
         const response = await fetch(`${API_URL}/admin/usuarios`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
+        if (response.status === 401 || response.status === 403) {
+            localStorage.removeItem('token');
+            if (window.showToast) window.showToast('Sessão expirada. Redirecionando para login...', 'error');
+            setTimeout(() => window.location.href = 'index.html', 1000);
+            return;
+        }
         baseUtilizadores = await response.json();
         renderizarTabelaUtilizadores(baseUtilizadores);
     } catch (error) {

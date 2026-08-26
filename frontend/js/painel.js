@@ -27,6 +27,14 @@ async function carregarCursos(){
         const response = await fetch(`${API_URL}/cursos/ativos`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.removeItem('token');
+            if (window.showToast) window.showToast('Sessão expirada. Redirecionando para login...', 'error');
+            setTimeout(() => window.location.href = 'index.html', 1000);
+            return;
+        }
+
         const cursos = await response.json();
 
         divCursos.innerHTML = '';
