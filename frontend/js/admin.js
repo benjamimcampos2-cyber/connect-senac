@@ -94,6 +94,11 @@ function renderizarTabelaUtilizadores(lista){
     }
 
     lista.forEach(user => {
+        const safeNome = window.escapeHTML ? window.escapeHTML(user.nome || '') : (user.nome || '');
+        const safeEmail = window.escapeHTML ? window.escapeHTML(user.email || '') : (user.email || '');
+        const safeTelefone = window.escapeHTML ? window.escapeHTML(user.telefone || '-') : (user.telefone || '-');
+        const safeCursosAtivos = window.escapeHTML ? window.escapeHTML(user.cursos_ativos || '-') : (user.cursos_ativos || '-');
+
         const statusBadge = user.is_bloqueado
             ? '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800">Bloqueado</span>'
             : '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">Ativo</span>';
@@ -121,20 +126,20 @@ function renderizarTabelaUtilizadores(lista){
 
         const podeExcluir = payloadToken.perfil === 'admin' || (payloadToken.perfil === 'coordenador' && user.perfil === 'candidato');
         const btnExcluir = podeExcluir
-            ? `<button class="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 transition ml-1" onclick="excluirUsuario('${user.id}', '${user.nome}')" title="Excluir Conta">🗑️</button>` : '';
+            ? `<button class="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 transition ml-1" onclick="excluirUsuario('${user.id}', '${user.nome ? user.nome.replace(/'/g, "\\'") : ''}')" title="Excluir Conta">🗑️</button>` : '';
 
         const row = `
             <tr class="hover:bg-slate-50/80 transition-colors">
                 <td class="py-3 px-4">
-                    <div class="font-bold text-slate-900">${user.nome}</div>
-                    <div class="text-[11px] text-slate-400 sm:hidden">${user.email}</div>
+                    <div class="font-bold text-slate-900">${safeNome}</div>
+                    <div class="text-[11px] text-slate-400 sm:hidden">${safeEmail}</div>
                 </td>
                 <td class="py-3 px-4">
-                    <div class="text-xs text-slate-700">${user.email}</div>
-                    <div class="text-xs text-slate-400">${user.telefone || '-'}</div>
+                    <div class="text-xs text-slate-700">${safeEmail}</div>
+                    <div class="text-xs text-slate-400">${safeTelefone}</div>
                 </td>
                 <td class="py-3 px-4">${seletorPerfil}</td>
-                <td class="py-3 px-4"><span class="text-xs text-slate-500">${user.cursos_ativos || '-'}</span></td>
+                <td class="py-3 px-4"><span class="text-xs text-slate-500">${safeCursosAtivos}</span></td>
                 <td class="py-3 px-4 text-center font-bold text-brand-600">${user.total_agendados || 0}</td>
                 <td class="py-3 px-4 text-center font-bold text-emerald-600">${user.total_concluidos || 0}</td>
                 <td class="py-3 px-4 text-center font-bold text-rose-600">${user.total_cancelados || 0}</td>
@@ -457,36 +462,51 @@ async function carregarCursosAdmin(){
     try {
         const response = await fetch(`${API_URL}/cursos/admin`, {
             headers: { 'Authorization': `Bearer ${token}` }
+window.cursosAdminMap = new Map();
+
+async function carregarCursosAdmin(){
+    const tbody = document.getElementById('tabelaCursosBody');
+    try {
+        const response = await fetch(`${API_URL}/cursos`, {
+            headers: { 'Authorization': `Bearer ${token}` }
         });
         const cursos = await response.json();
 
         tbody.innerHTML = '';
+        window.cursosAdminMap.clear();
+
         if (!Array.isArray(cursos) || cursos.length === 0) {
             tbody.innerHTML = '<tr><td colspan="5" class="text-center text-slate-400 py-6">Nenhum curso cadastrado ainda.</td></tr>';
             return;
         }
 
         cursos.forEach(curso => {
-            const profNome = curso.usuarios ? curso.usuarios.nome : 'Sem Professor';
+            window.cursosAdminMap.set(String(curso.id), curso);
+
+            const safeNome = window.escapeHTML ? window.escapeHTML(curso.nome || '') : (curso.nome || '');
+            const safeDescricao = window.escapeHTML ? window.escapeHTML(curso.descricao || '') : (curso.descricao || '');
+            const safeProfNome = window.escapeHTML ? window.escapeHTML(curso.usuarios ? curso.usuarios.nome : 'Sem Professor') : 'Sem Professor';
+            const safeLocal = window.escapeHTML ? window.escapeHTML(curso.localizacao || '-') : '-';
+
             const statusBadge = curso.status === 'ativo'
                 ? '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">Ativo</span>'
                 : '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700">Arquivado</span>';
 
             const btnArquivar = curso.status === 'ativo'
-                ? `<button class="inline-flex items-center rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs px-3 py-1.5 transition ml-1" onclick="arquivarCurso('${curso.id}', '${curso.nome}')">Arquivar</button>`
+                ? `<button class="inline-flex items-center rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs px-3 py-1.5 transition ml-1" onclick="arquivarCurso('${curso.id}', '${curso.nome ? curso.nome.replace(/'/g, "\\'") : ''}')">Arquivar</button>`
                 : '';
 
             const row = `
                 <tr class="hover:bg-slate-50/80 transition-colors">
                     <td class="py-3 px-4">
-                        <div class="font-bold text-slate-900">${curso.nome}</div>
-                        <div class="text-xs text-slate-400 truncate max-w-xs">${curso.descricao}</div>
+                        <div class="font-bold text-slate-900">${safeNome}</div>
+                        <div class="text-xs text-slate-400 truncate max-w-xs">${safeDescricao}</div>
                     </td>
-                    <td class="py-3 px-4 text-slate-700">${profNome}</td>
-                    <td class="py-3 px-4 text-slate-500">${curso.localizacao || '-'}</td>
+                    <td class="py-3 px-4 text-slate-700">${safeProfNome}</td>
+                    <td class="py-3 px-4 text-slate-500">${safeLocal}</td>
                     <td class="py-3 px-4">${statusBadge}</td>
                     <td class="py-3 px-4 text-right whitespace-nowrap">
-                        <button class="inline-flex items-center rounded-xl bg-brand-50 hover:bg-brand-100 text-brand-700 font-bold text-xs px-3 py-1.5 transition" onclick='abrirModalEdicao(${JSON.stringify(curso).replace(/'/g, "&#39;")})'>Editar</button>
+                        <button class="inline-flex items-center rounded-xl bg-brand-50 hover:bg-brand-100 text-brand-700 font-bold text-xs px-3 py-1.5 transition" onclick="abrirModalEdicao('${curso.id}')">Editar</button>
                         ${btnArquivar}
                     </td>
                 </tr>
@@ -522,7 +542,10 @@ async function arquivarCurso(id, nome){
     }
 }
 
-function abrirModalEdicao(curso){
+function abrirModalEdicao(cursoId){
+    const curso = typeof cursoId === 'object' ? cursoId : window.cursosAdminMap.get(String(cursoId));
+    if (!curso) return;
+
     document.getElementById('editCursoId').value = curso.id;
     document.getElementById('editNome').value = curso.nome;
     document.getElementById('editDescricao').value = curso.descricao;
@@ -628,7 +651,9 @@ async function carregarPautasGlobais(){
 
         cursos.forEach((curso, index) => {
             let horariosHTML = '';
-            const nomeProfessor = curso.usuarios ? curso.usuarios.nome : 'Sem Professor Vinculado';
+            const rawProfessor = curso.usuarios ? curso.usuarios.nome : 'Sem Professor Vinculado';
+            const nomeProfessor = window.escapeHTML ? window.escapeHTML(rawProfessor) : rawProfessor;
+            const safeCursoNome = window.escapeHTML ? window.escapeHTML(curso.nome || '') : (curso.nome || '');
 
             if (curso.disponibilidades && curso.disponibilidades.length > 0) {
                 curso.disponibilidades.sort((a, b) => new Date(a.data_hora) - new Date(b.data_hora));
@@ -642,13 +667,17 @@ async function carregarPautasGlobais(){
                         tabelaModelos = `<p class="text-slate-400 text-xs py-3 text-center">Nenhum modelo agendado.</p>`;
                     } else {
                         let linhas = agendamentosAtivos.map(ag => {
+                            const rawNomeModelo = ag.usuarios?.nome || 'Modelo';
+                            const safeNomeModelo = window.escapeHTML ? window.escapeHTML(rawNomeModelo) : rawNomeModelo;
+                            const telRaw = ag.usuarios?.telefone || '-';
+                            const safeTelefone = window.escapeHTML ? window.escapeHTML(telRaw) : telRaw;
                             const telLimpo = (ag.usuarios?.telefone || '').replace(/\D/g, '');
-                            const msgZap = encodeURIComponent(`Olá, ${ag.usuarios?.nome}! Aqui é a Coordenação do SENAC referente ao curso ${curso.nome}.`);
+                            const msgZap = encodeURIComponent(`Olá, ${rawNomeModelo}! Aqui é a Coordenação do SENAC referente ao curso ${curso.nome}.`);
                             return `
                                 <tr class="hover:bg-slate-50/70 transition-colors">
-                                    <td class="py-2.5 px-4 font-semibold text-slate-900">${ag.usuarios?.nome || 'Modelo'}</td>
+                                    <td class="py-2.5 px-4 font-semibold text-slate-900">${safeNomeModelo}</td>
                                     <td class="py-2.5 px-4">
-                                        <a href="https://wa.me/55${telLimpo}?text=${msgZap}" target="_blank" class="inline-flex items-center gap-1 font-semibold text-emerald-600 hover:text-emerald-800 transition">📱 ${ag.usuarios?.telefone || '-'}</a>
+                                        <a href="https://wa.me/55${telLimpo}?text=${msgZap}" target="_blank" class="inline-flex items-center gap-1 font-semibold text-emerald-600 hover:text-emerald-800 transition">📱 ${safeTelefone}</a>
                                     </td>
                                     <td class="py-2.5 px-4 text-center">
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${ag.status === 'concluido' ? 'bg-emerald-100 text-emerald-800' : 'bg-brand-100 text-brand-800'}">${(ag.status || '').toUpperCase()}</span>
@@ -698,7 +727,7 @@ async function carregarPautasGlobais(){
                             <div class="flex items-center gap-3">
                                 <span class="text-xl">📘</span>
                                 <div>
-                                    <span class="text-base text-slate-900">${curso.nome}</span>
+                                    <span class="text-base text-slate-900">${safeCursoNome}</span>
                                     <span class="ml-2 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-brand-50 text-brand-700">Prof: ${nomeProfessor}</span>
                                 </div>
                             </div>

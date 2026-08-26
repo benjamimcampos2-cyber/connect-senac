@@ -121,25 +121,25 @@ exports.solicitarRecuperacao = async (req, res) => {
             return res.json({ mensagem: 'Se o e-mail existir, receberá um link de recuperação.' });
         }
 
-        // 2. Gerar Token Aleatório (64 caracteres Hexadecimais)
-        const resetToken = crypto.randomBytes(32).toString('hex');
+        // 2. Gerar Token Aleatório (64 caracteres Hexadecimais) e Hash Seguro SHA-256
+        const rawResetToken = crypto.randomBytes(32).toString('hex');
+        const tokenHash = crypto.createHash('sha256').update(rawResetToken).digest('hex');
 
         // 3. Definir expiração (ex: 1 hora a partir de agora)
         const expiraEm = new Date();
         expiraEm.setHours(expiraEm.getHours() + 1);
 
-        // 4. Guardar o token e a expiração no banco
+        // 4. Guardar o HASH do token e a expiração no banco (Segurança contra dumps)
         await supabase
             .from('usuarios')
             .update({
-                reset_token: resetToken,
+                reset_token: tokenHash,
                 reset_token_expires: expiraEm.toISOString()
             })
             .eq('id', utilizador.id);
 
-        // 5. Simular o envio de E-mail (No mundo real, usaríamos o Nodemailer aqui)
-        // Como o Front-end e Back-end dividem a mesma origem, montamos o link dinamicamente
-        const linkRecuperacao = `${req.protocol}://${req.get('host')}/redefinir-senha.html?token=${resetToken}`;
+        // 5. Enviar o token original em texto puro no link do usuário
+        const linkRecuperacao = `${req.protocol}://${req.get('host')}/redefinir-senha.html?token=${rawResetToken}`;
 
         console.log(`\n📧 [SIMULAÇÃO DE E-MAIL]`);
         console.log(`Para: ${email}`);
@@ -158,17 +158,23 @@ exports.solicitarRecuperacao = async (req, res) => {
 exports.redefinirSenha = async (req, res) => {
     const { token, nova_senha, confirmar_senha } = req.body;
 
+    if (!token || !nova_senha || !confirmar_senha) {
+        return res.status(400).json({ erro: 'Todos os campos são obrigatórios.' });
+    }
+
     if (nova_senha !== confirmar_senha) {
         return res.status(400).json({ erro: 'As palavras-passe não coincidem.' });
     }
 
     try {
-        // 1. Procurar o utilizador que tem este token e verificar se ainda é válido (data > agora)
+        // 1. Gerar o hash SHA-256 do token recebido para comparar com o banco
+        const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
         const agora = new Date().toISOString();
+
         const { data: utilizador, error: erroBusca } = await supabase
             .from('usuarios')
             .select('id')
-            .eq('reset_token', token)
+            .eq('reset_token', tokenHash)
             .gt('reset_token_expires', agora) // Valida se ainda não expirou
             .maybeSingle();
 

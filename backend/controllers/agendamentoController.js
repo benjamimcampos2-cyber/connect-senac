@@ -8,17 +8,39 @@ const supabase = require('../config/database');
 // [Funcionalidade] Candidato: Criar Agendamento (Inscrever-se na vaga)
 exports.criar = async (req, res) => {
     const { disponibilidade_id } = req.body;
-    const usuario_id = req.usuario.id; // Pegamos o ID de quem está logado pelo token!
+    const usuario_id = req.usuario.id;
 
     if (!disponibilidade_id) {
         return res.status(400).json({ erro: 'O ID da disponibilidade é obrigatório.' });
     }
 
     try {
-        // 1. Verificar se a vaga existe e tem espaço (Regra de Overbooking)
+        // Tentativa 1: RPC Atômica no PostgreSQL (Se criada no Supabase com Lock Pessimista)
+        const { data: rpcData, error: rpcError } = await supabase.rpc('realizar_agendamento_atomico', {
+            p_usuario_id: usuario_id,
+            p_disponibilidade_id: disponibilidade_id
+        });
+
+        if (!rpcError && rpcData) {
+            return res.status(201).json({
+                mensagem: 'Agendamento realizado com sucesso!',
+                agendamento: rpcData
+            });
+        }
+
+        // Se o erro foi de negócio retornado pela RPC:
+        if (rpcError && rpcError.message && rpcError.message.includes('SEM_VAGAS')) {
+            return res.status(400).json({ erro: 'Infelizmente, não há mais vagas para este horário.' });
+        }
+        if (rpcError && rpcError.code === '23505') {
+            return res.status(400).json({ erro: 'Você já está agendado para este exato horário!' });
+        }
+
+        // Fallback Defensivo via Query (para ambientes sem a RPC migrada):
+        // 1. Verificar se a vaga existe e tem espaço
         const { data: disponibilidade, error: erroDisp } = await supabase
             .from('disponibilidades')
-            .select('vagas_totais, vagas_ocupadas')
+            .select('id, vagas_totais, vagas_ocupadas')
             .eq('id', disponibilidade_id)
             .single();
 
@@ -37,7 +59,6 @@ exports.criar = async (req, res) => {
             .select();
 
         if (erroAgendamento) {
-            // Se cair na regra UNIQUE do banco de dados (mesmo utilizador e mesma vaga)
             if (erroAgendamento.code === '23505') {
                 return res.status(400).json({ erro: 'Você já está agendado para este exato horário!' });
             }
@@ -45,10 +66,16 @@ exports.criar = async (req, res) => {
         }
 
         // 3. Atualizar o contador de vagas ocupadas
-        await supabase
+        const { error: erroUpdate } = await supabase
             .from('disponibilidades')
             .update({ vagas_ocupadas: disponibilidade.vagas_ocupadas + 1 })
             .eq('id', disponibilidade_id);
+
+        if (erroUpdate) {
+            // Em caso de falha no incremento, remove o agendamento inserido (Rollback)
+            await supabase.from('agendamentos').delete().eq('id', novoAgendamento[0].id);
+            throw erroUpdate;
+        }
 
         res.status(201).json({
             mensagem: 'Agendamento realizado com sucesso!',

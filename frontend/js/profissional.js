@@ -112,13 +112,15 @@ async function carregarMinhasTurmas() {
                   acoesHTML = `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700">${ag.status.toUpperCase()}</span>`;
                 }
 
-                const nomeModelo = ag.usuarios ? ag.usuarios.nome : "Não informado";
-                const emailModelo = ag.usuarios ? ag.usuarios.email : "-";
+                const rawNomeModelo = ag.usuarios ? ag.usuarios.nome : "Não informado";
+                const safeNomeModelo = window.escapeHTML ? window.escapeHTML(rawNomeModelo) : rawNomeModelo;
+                const safeEmailModelo = window.escapeHTML ? window.escapeHTML(ag.usuarios ? ag.usuarios.email : "-") : "-";
                 const telRaw = ag.usuarios ? ag.usuarios.telefone || "" : "";
+                const safeTel = window.escapeHTML ? window.escapeHTML(telRaw || "-") : (telRaw || "-");
                 const telLimpo = telRaw.replace(/\D/g, "");
 
                 const msgProf = encodeURIComponent(
-                  `Olá, ${nomeModelo}! Aqui é o(a) professor(a) do SENAC referente ao curso ${curso.nome}.`
+                  `Olá, ${rawNomeModelo}! Aqui é o(a) professor(a) do SENAC referente ao curso ${curso.nome}.`
                 );
 
                 const linkZap = telLimpo
@@ -127,8 +129,8 @@ async function carregarMinhasTurmas() {
 
                 return `
                   <tr class="hover:bg-slate-50/70 transition-colors">
-                    <td class="py-3 px-4 font-semibold text-slate-900">${nomeModelo}</td>
-                    <td class="py-3 px-4 text-slate-600">${emailModelo}</td>
+                    <td class="py-3 px-4 font-semibold text-slate-900">${safeNomeModelo}</td>
+                    <td class="py-3 px-4 text-slate-600">${safeEmailModelo}</td>
                     <td class="py-3 px-4">${linkZap}</td>
                     <td class="py-3 px-4 text-center">${acoesHTML}</td>
                   </tr>
@@ -170,6 +172,7 @@ async function carregarMinhasTurmas() {
 
       const itemOpen = index === 0 ? "show" : "";
       const badgeText = index === 0 ? "Ocultar Pauta ↑" : "Ver Pauta ↓";
+      const safeCursoNome = window.escapeHTML ? window.escapeHTML(curso.nome || '') : (curso.nome || '');
 
       accordion.innerHTML += `
         <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden transition-all">
@@ -177,7 +180,7 @@ async function carregarMinhasTurmas() {
             <button class="w-full flex items-center justify-between p-5 text-left font-bold text-slate-900 hover:bg-slate-50 transition cursor-pointer" type="button" onclick="toggleCollapse('collapse${curso.id}', this)">
               <div class="flex items-center gap-3">
                 <span class="text-xl">📘</span>
-                <span class="text-base">${curso.nome}</span>
+                <span class="text-base">${safeCursoNome}</span>
               </div>
               <span class="collapse-badge text-xs text-brand-600 font-semibold bg-brand-50 px-3 py-1 rounded-lg">${badgeText}</span>
             </button>

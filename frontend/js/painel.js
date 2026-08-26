@@ -19,6 +19,8 @@ const modalDetalhesCurso = new bootstrap.Modal(document.getElementById('modalDet
 // ==========================================
 // 1. CARREGAR A VITRINE DE CURSOS
 // ==========================================
+window.cursosMap = new Map();
+
 async function carregarCursos(){
     const divCursos = document.getElementById('listaCursos');
     try {
@@ -28,6 +30,8 @@ async function carregarCursos(){
         const cursos = await response.json();
 
         divCursos.innerHTML = '';
+        window.cursosMap.clear();
+
         if (!Array.isArray(cursos) || cursos.length === 0) {
             divCursos.innerHTML = `
                 <div class="col-span-full bg-white rounded-3xl border border-slate-200 p-8 sm:p-12 text-center">
@@ -42,25 +46,29 @@ async function carregarCursos(){
         }
 
         cursos.forEach(curso => {
-            const profNome = curso.usuarios ? curso.usuarios.nome : 'A definir';
-            const local = curso.localizacao || 'SENAC';
-            const imagem = curso.foto_url || 'https://via.placeholder.com/600x400/004a8d/ffffff?text=Connect+Senac';
+            window.cursosMap.set(String(curso.id), curso);
+
+            const safeNome = window.escapeHTML ? window.escapeHTML(curso.nome) : curso.nome;
+            const safeDescricao = window.escapeHTML ? window.escapeHTML(curso.descricao) : curso.descricao;
+            const safeProfNome = window.escapeHTML ? window.escapeHTML(curso.usuarios ? curso.usuarios.nome : 'A definir') : 'A definir';
+            const safeLocal = window.escapeHTML ? window.escapeHTML(curso.localizacao || 'SENAC') : 'SENAC';
+            const safeImagem = curso.foto_url ? window.escapeHTML(curso.foto_url) : 'https://via.placeholder.com/600x400/004a8d/ffffff?text=Connect+Senac';
 
             const card = `
-                <div class="group bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col cursor-pointer hover:-translate-y-1" onclick='abrirModalDetalhesCurso(${JSON.stringify(curso).replace(/'/g, "&#39;")})'>
+                <div class="group bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col cursor-pointer hover:-translate-y-1" onclick="abrirModalDetalhesCurso('${curso.id}')">
                     <div class="relative h-48 w-full bg-slate-100 overflow-hidden">
-                        <img src="${imagem}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="${curso.nome}">
+                        <img src="${safeImagem}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="${safeNome}">
                         <div class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-slate-700 text-xs font-semibold px-2.5 py-1 rounded-lg border border-white/60 shadow-xs">
-                            📍 ${local}
+                            📍 ${safeLocal}
                         </div>
                     </div>
                     <div class="p-6 flex-1 flex flex-col justify-between">
                         <div>
-                            <h3 class="font-bold text-slate-900 text-base mb-1.5 group-hover:text-brand-600 transition-colors">${curso.nome}</h3>
-                            <p class="text-xs text-slate-500 line-clamp-2 mb-4 leading-relaxed">${curso.descricao}</p>
+                            <h3 class="font-bold text-slate-900 text-base mb-1.5 group-hover:text-brand-600 transition-colors">${safeNome}</h3>
+                            <p class="text-xs text-slate-500 line-clamp-2 mb-4 leading-relaxed">${safeDescricao}</p>
                         </div>
                         <div class="pt-4 border-t border-slate-100 flex items-center justify-between mt-auto">
-                            <span class="text-xs font-medium text-slate-500 truncate max-w-[140px]">Prof. ${profNome}</span>
+                            <span class="text-xs font-medium text-slate-500 truncate max-w-[140px]">Prof. ${safeProfNome}</span>
                             <span class="text-xs font-bold text-brand-600 group-hover:translate-x-1 transition-transform">Ver Detalhes →</span>
                         </div>
                     </div>
@@ -76,7 +84,10 @@ async function carregarCursos(){
 // ==========================================
 // 1.5 MODAL DE DETALHES DO CURSO
 // ==========================================
-function abrirModalDetalhesCurso(curso){
+function abrirModalDetalhesCurso(cursoId){
+    const curso = typeof cursoId === 'object' ? cursoId : window.cursosMap.get(String(cursoId));
+    if (!curso) return;
+
     document.getElementById('detalheCursoNome').textContent = curso.nome;
     document.getElementById('detalheCursoProf').textContent = curso.usuarios ? curso.usuarios.nome : 'A definir';
     document.getElementById('detalheCursoLocal').textContent = curso.localizacao || 'SENAC';
@@ -120,18 +131,19 @@ function abrirModalDetalhesCurso(curso){
             `;
 
             feedbacks.forEach(f => {
-                const estrelas = '⭐'.repeat(f.nota);
+                const estrelas = '⭐'.repeat(Math.max(1, Math.min(5, f.nota || 5)));
                 const dataFormatada = new Date(f.created_at).toLocaleDateString('pt-BR');
-                const comentarioTexto = f.comentario ? `"${f.comentario}"` : '<span class="text-slate-400 italic">Sem comentário adicional.</span>';
+                const safeAvaliador = window.escapeHTML ? window.escapeHTML(f.avaliador_nome || 'Anônimo') : (f.avaliador_nome || 'Anônimo');
+                const safeComentario = f.comentario ? `"${window.escapeHTML ? window.escapeHTML(f.comentario) : f.comentario}"` : '<span class="text-slate-400 italic">Sem comentário adicional.</span>';
 
                 html += `
                     <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100">
                         <div class="flex items-center justify-between mb-1">
-                            <strong class="text-xs font-bold text-slate-800">${f.avaliador_nome}</strong>
+                            <strong class="text-xs font-bold text-slate-800">${safeAvaliador}</strong>
                             <span class="text-[11px] text-slate-400">${dataFormatada}</span>
                         </div>
                         <div class="text-xs text-amber-500 mb-1">${estrelas}</div>
-                        <div class="text-xs text-slate-600 leading-relaxed">${comentarioTexto}</div>
+                        <div class="text-xs text-slate-600 leading-relaxed">${safeComentario}</div>
                     </div>
                 `;
             });
@@ -244,7 +256,8 @@ async function carregarMeusAgendamentos(){
         }
 
         agendamentos.forEach(ag => {
-            const cursoNome = ag.disponibilidades?.cursos?.nome || 'Curso';
+            const rawCursoNome = ag.disponibilidades?.cursos?.nome || 'Curso';
+            const cursoNome = window.escapeHTML ? window.escapeHTML(rawCursoNome) : rawCursoNome;
             const dataHora = new Date(ag.disponibilidades?.data_hora).toLocaleString('pt-BR');
             let badge = '';
             let acoesHTML = '';
@@ -388,19 +401,20 @@ async function carregarMeusFeedbacks(){
         }
 
         feedbacks.forEach(f => {
-            const estrelas = '⭐'.repeat(f.nota);
+            const estrelas = '⭐'.repeat(Math.max(1, Math.min(5, f.nota || 5)));
             const dataFormatada = new Date(f.created_at).toLocaleDateString('pt-BR');
-            const comentarioTexto = f.comentario ? `"${f.comentario}"` : '<span class="text-slate-400 italic">Apenas nota, sem texto.</span>';
+            const safeCursoNome = window.escapeHTML ? window.escapeHTML(f.curso_nome || 'Curso') : (f.curso_nome || 'Curso');
+            const safeComentarioTexto = f.comentario ? `"${window.escapeHTML ? window.escapeHTML(f.comentario) : f.comentario}"` : '<span class="text-slate-400 italic">Apenas nota, sem texto.</span>';
 
             const card = `
                 <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 flex flex-col justify-between">
                     <div>
                         <div class="flex items-center justify-between gap-2 mb-2">
-                            <h3 class="font-bold text-slate-900 text-sm truncate">${f.curso_nome}</h3>
+                            <h3 class="font-bold text-slate-900 text-sm truncate">${safeCursoNome}</h3>
                             <span class="text-xs text-slate-400 font-medium">${dataFormatada}</span>
                         </div>
                         <div class="text-amber-500 text-sm mb-3">${estrelas}</div>
-                        <p class="text-xs text-slate-600 leading-relaxed">${comentarioTexto}</p>
+                        <p class="text-xs text-slate-600 leading-relaxed">${safeComentarioTexto}</p>
                     </div>
                 </div>
             `;
