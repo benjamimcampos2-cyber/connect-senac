@@ -17,10 +17,44 @@ const modalFeedback = new bootstrap.Modal(document.getElementById('modalFeedback
 const modalDetalhesCurso = new bootstrap.Modal(document.getElementById('modalDetalhesCurso'));
 
 // ==========================================
-// 1. CARREGAR A VITRINE DE CURSOS
+// 0. PERSONALIZAÇÃO & SAUDAÇÃO DINÂMICA
 // ==========================================
+let todosOsCursos = [];
 window.cursosMap = new Map();
 
+function configurarSaudacao() {
+    try {
+        const payloadToken = JSON.parse(atob(token.split('.')[1]));
+        const nomeUsuario = payloadToken.nome ? payloadToken.nome.split(' ')[0] : 'Modelo';
+        
+        const elementoHeader = document.getElementById('userNomeHeader');
+        if (elementoHeader) elementoHeader.textContent = nomeUsuario;
+
+        const elementoSaudacao = document.getElementById('saudacaoUsuario');
+        if (elementoSaudacao) {
+            const hora = new Date().getHours();
+            let periodo = 'Olá';
+            let icone = '👋';
+            if (hora >= 5 && hora < 12) {
+                periodo = 'Bom dia';
+                icone = '☀️';
+            } else if (hora >= 12 && hora < 18) {
+                periodo = 'Boa tarde';
+                icone = '🌤️';
+            } else {
+                periodo = 'Boa noite';
+                icone = '🌙';
+            }
+            elementoSaudacao.innerHTML = `${periodo}, ${window.escapeHTML ? window.escapeHTML(nomeUsuario) : nomeUsuario}! ${icone}`;
+        }
+    } catch (e) {
+        console.error('Erro ao decodificar token:', e);
+    }
+}
+
+// ==========================================
+// 1. CARREGAR A VITRINE DE CURSOS COM FILTRO
+// ==========================================
 async function carregarCursos(){
     const divCursos = document.getElementById('listaCursos');
     try {
@@ -36,57 +70,84 @@ async function carregarCursos(){
         }
 
         const cursos = await response.json();
+        todosOsCursos = Array.isArray(cursos) ? cursos : [];
+        renderizarVitrineCursos(todosOsCursos);
+    } catch (error) {
+        divCursos.innerHTML = '<div class="col-span-full text-center py-10 text-rose-500 text-sm font-semibold">Erro ao carregar os cursos. Tente recarregar a página.</div>';
+    }
+}
 
-        divCursos.innerHTML = '';
-        window.cursosMap.clear();
+function renderizarVitrineCursos(cursos) {
+    const divCursos = document.getElementById('listaCursos');
+    divCursos.innerHTML = '';
+    window.cursosMap.clear();
 
-        if (!Array.isArray(cursos) || cursos.length === 0) {
-            divCursos.innerHTML = `
-                <div class="col-span-full bg-white rounded-3xl border border-slate-200 p-8 sm:p-12 text-center">
-                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-amber-50 text-amber-600 text-2xl mb-4">
-                        ✨
-                    </div>
-                    <h3 class="text-base font-bold text-slate-800 mb-1">Nenhum serviço disponível no momento</h3>
-                    <p class="text-xs text-slate-500 max-w-sm mx-auto">Novos cursos e horários práticos para modelos são abertos frequentemente pela coordenação.</p>
+    if (!Array.isArray(cursos) || cursos.length === 0) {
+        divCursos.innerHTML = `
+            <div class="col-span-full bg-white rounded-3xl border border-slate-200/80 p-8 sm:p-12 text-center shadow-soft-sm">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-senac-orange-light text-senac-orange text-2xl mb-4">
+                    ✨
                 </div>
-            `;
+                <h3 class="text-base font-bold text-slate-800 mb-1">Nenhum serviço encontrado</h3>
+                <p class="text-xs text-slate-500 max-w-sm mx-auto">Novos atendimentos e horários práticos são abertos frequentemente pelos professores e coordenação.</p>
+            </div>
+        `;
+        return;
+    }
+
+    cursos.forEach(curso => {
+        window.cursosMap.set(String(curso.id), curso);
+
+        const safeNome = window.escapeHTML ? window.escapeHTML(curso.nome) : curso.nome;
+        const safeDescricao = window.escapeHTML ? window.escapeHTML(curso.descricao) : curso.descricao;
+        const safeProfNome = window.escapeHTML ? window.escapeHTML(curso.usuarios ? curso.usuarios.nome : 'Instrutor(a) Senac') : 'Instrutor(a) Senac';
+        const safeLocal = window.escapeHTML ? window.escapeHTML(curso.localizacao || 'Unidade Senac') : 'Unidade Senac';
+        const safeImagem = curso.foto_url ? window.escapeHTML(curso.foto_url) : 'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=600&auto=format&fit=crop&q=80';
+
+        const card = `
+            <div class="group bg-white rounded-3xl border border-slate-200/80 shadow-soft-sm hover:shadow-soft-xl transition-all duration-300 overflow-hidden flex flex-col cursor-pointer hover:-translate-y-1" onclick="abrirModalDetalhesCurso('${curso.id}')">
+                <div class="relative h-48 w-full bg-slate-100 overflow-hidden">
+                    <img src="${safeImagem}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="${safeNome}" onerror="this.src='https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=600&auto=format&fit=crop&q=80'">
+                    <div class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-slate-700 text-xs font-bold px-3 py-1 rounded-full border border-white/60 shadow-soft-sm">
+                        📍 ${safeLocal}
+                    </div>
+                </div>
+                <div class="p-6 flex-1 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-1.5 text-xs font-bold text-brand-600 mb-2">
+                            <span class="w-1.5 h-1.5 rounded-full bg-senac-orange"></span>
+                            <span>Atendimento Prático</span>
+                        </div>
+                        <h3 class="font-extrabold text-slate-900 text-base mb-1.5 group-hover:text-brand-600 transition-colors line-clamp-1">${safeNome}</h3>
+                        <p class="text-xs text-slate-500 line-clamp-2 mb-4 leading-relaxed">${safeDescricao}</p>
+                    </div>
+                    <div class="pt-4 border-t border-slate-100 flex items-center justify-between mt-auto">
+                        <span class="text-xs font-semibold text-slate-500 truncate max-w-[140px]">Prof. ${safeProfNome}</span>
+                        <span class="text-xs font-bold text-brand-600 group-hover:text-senac-orange group-hover:translate-x-0.5 transition-all">Ver Detalhes →</span>
+                    </div>
+                </div>
+            </div>
+        `;
+        divCursos.innerHTML += card;
+    });
+}
+
+// Filtro de busca em tempo real
+const inputBusca = document.getElementById('inputBuscaCursos');
+if (inputBusca) {
+    inputBusca.addEventListener('input', (e) => {
+        const termo = e.target.value.toLowerCase().trim();
+        if (!termo) {
+            renderizarVitrineCursos(todosOsCursos);
             return;
         }
-
-        cursos.forEach(curso => {
-            window.cursosMap.set(String(curso.id), curso);
-
-            const safeNome = window.escapeHTML ? window.escapeHTML(curso.nome) : curso.nome;
-            const safeDescricao = window.escapeHTML ? window.escapeHTML(curso.descricao) : curso.descricao;
-            const safeProfNome = window.escapeHTML ? window.escapeHTML(curso.usuarios ? curso.usuarios.nome : 'A definir') : 'A definir';
-            const safeLocal = window.escapeHTML ? window.escapeHTML(curso.localizacao || 'SENAC') : 'SENAC';
-            const safeImagem = curso.foto_url ? window.escapeHTML(curso.foto_url) : 'https://via.placeholder.com/600x400/004a8d/ffffff?text=Connect+Senac';
-
-            const card = `
-                <div class="group bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col cursor-pointer hover:-translate-y-1" onclick="abrirModalDetalhesCurso('${curso.id}')">
-                    <div class="relative h-48 w-full bg-slate-100 overflow-hidden">
-                        <img src="${safeImagem}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="${safeNome}">
-                        <div class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-slate-700 text-xs font-semibold px-2.5 py-1 rounded-lg border border-white/60 shadow-xs">
-                            📍 ${safeLocal}
-                        </div>
-                    </div>
-                    <div class="p-6 flex-1 flex flex-col justify-between">
-                        <div>
-                            <h3 class="font-bold text-slate-900 text-base mb-1.5 group-hover:text-brand-600 transition-colors">${safeNome}</h3>
-                            <p class="text-xs text-slate-500 line-clamp-2 mb-4 leading-relaxed">${safeDescricao}</p>
-                        </div>
-                        <div class="pt-4 border-t border-slate-100 flex items-center justify-between mt-auto">
-                            <span class="text-xs font-medium text-slate-500 truncate max-w-[140px]">Prof. ${safeProfNome}</span>
-                            <span class="text-xs font-bold text-brand-600 group-hover:translate-x-1 transition-transform">Ver Detalhes →</span>
-                        </div>
-                    </div>
-                </div>
-            `;
-            divCursos.innerHTML += card;
-        });
-    } catch (error) {
-        divCursos.innerHTML = '<div class="col-span-full text-center py-10 text-rose-500 text-sm">Erro ao carregar os cursos.</div>';
-    }
+        const filtrados = todosOsCursos.filter(c => 
+            (c.nome && c.nome.toLowerCase().includes(termo)) ||
+            (c.descricao && c.descricao.toLowerCase().includes(termo)) ||
+            (c.localizacao && c.localizacao.toLowerCase().includes(termo))
+        );
+        renderizarVitrineCursos(filtrados);
+    });
 }
 
 // ==========================================
@@ -266,30 +327,32 @@ async function carregarMeusAgendamentos(){
         agendamentos.forEach(ag => {
             const rawCursoNome = ag.disponibilidades?.cursos?.nome || 'Curso';
             const cursoNome = window.escapeHTML ? window.escapeHTML(rawCursoNome) : rawCursoNome;
-            const dataHora = new Date(ag.disponibilidades?.data_hora).toLocaleString('pt-BR');
+            const dataHora = new Date(ag.disponibilidades?.data_hora).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
             let badge = '';
             let acoesHTML = '';
 
             if (ag.status === 'agendado') {
-                badge = '<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-brand-100 text-brand-800">Confirmado</span>';
-                acoesHTML = `<button class="w-full mt-3 inline-flex items-center justify-center rounded-xl border border-rose-200 bg-rose-50/60 hover:bg-rose-100 py-2.5 px-3 text-xs font-bold text-rose-700 transition active:scale-98" onclick="cancelarAgendamento('${ag.id}')">Cancelar Inscrição</button>`;
+                badge = '<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-brand-50 text-brand-700 border border-brand-200"><span class="w-1.5 h-1.5 rounded-full bg-brand-600"></span>Confirmado</span>';
+                acoesHTML = `<button class="w-full mt-4 inline-flex items-center justify-center rounded-xl border border-rose-200 bg-rose-50/70 hover:bg-rose-100/90 py-2.5 px-3 text-xs font-bold text-rose-700 transition active:scale-98" onclick="cancelarAgendamento('${ag.id}')">Cancelar Inscrição</button>`;
             } else if (ag.status === 'cancelado') {
-                badge = '<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-800">Cancelado</span>';
+                badge = '<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200"><span class="w-1.5 h-1.5 rounded-full bg-rose-600"></span>Cancelado</span>';
             } else if (ag.status === 'concluido') {
-                badge = '<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">Concluído</span>';
-                acoesHTML = `<button class="w-full mt-3 inline-flex items-center justify-center rounded-xl bg-amber-500 hover:bg-amber-600 py-2.5 px-3 text-xs font-bold text-white shadow-xs transition active:scale-98" onclick="abrirModalFeedback('${ag.id}')">⭐ Avaliar Serviço</button>`;
+                badge = '<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200"><span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>Concluído</span>';
+                acoesHTML = `<button class="w-full mt-4 inline-flex items-center justify-center gap-1.5 rounded-xl bg-senac-orange hover:bg-senac-orange-hover py-2.5 px-3 text-xs font-bold text-white shadow-soft-sm transition active:scale-98" onclick="abrirModalFeedback('${ag.id}')">⭐ Avaliar Atendimento</button>`;
             }
 
             const card = `
-                <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 flex flex-col justify-between">
+                <div class="bg-white rounded-3xl border border-slate-200/80 shadow-soft-sm hover:shadow-soft-md transition-all p-6 flex flex-col justify-between">
                     <div>
                         <div class="flex items-start justify-between gap-3 mb-3">
-                            <h3 class="font-bold text-slate-900 text-sm">${cursoNome}</h3>
+                            <h3 class="font-extrabold text-slate-900 text-sm line-clamp-1">${cursoNome}</h3>
                             ${badge}
                         </div>
-                        <p class="text-xs font-medium text-slate-500 flex items-center gap-1.5">
-                            <span>📅</span> ${dataHora}
-                        </p>
+                        <div class="space-y-1.5 text-xs text-slate-500">
+                            <p class="flex items-center gap-2">
+                                <span class="text-brand-600">📅</span> <span class="font-semibold text-slate-700">${dataHora}</span>
+                            </p>
+                        </div>
                     </div>
                     <div>
                         ${acoesHTML}
@@ -300,12 +363,12 @@ async function carregarMeusAgendamentos(){
             divAgendamentos.innerHTML += card;
         });
     } catch (error) {
-        divAgendamentos.innerHTML = '<div class="col-span-full text-center py-10 text-rose-500 text-sm">Erro ao carregar histórico.</div>';
+        divAgendamentos.innerHTML = '<div class="col-span-full text-center py-10 text-rose-500 text-sm font-semibold">Erro ao carregar histórico.</div>';
     }
 }
 
 async function cancelarAgendamento(agendamentoId){
-    if(!confirm("Tem a certeza que deseja cancelar a sua inscrição neste horário?")) return;
+    if(!confirm("Tem certeza que deseja cancelar sua inscrição neste horário?")) return;
 
     const msgDiv = document.getElementById(`msg-canc-${agendamentoId}`);
     try {
@@ -345,7 +408,7 @@ if (formFeedback) {
     formFeedback.addEventListener('submit', async (e) => {
         e.preventDefault();
         const msgDiv = document.getElementById('msgFeedback');
-        msgDiv.innerHTML = '<span class="text-brand-600 font-medium">A processar avaliação...</span>';
+        msgDiv.innerHTML = '<span class="text-brand-600 font-medium">Processando avaliação...</span>';
 
         const payload = {
             agendamento_id: document.getElementById('feedbackAgendamentoId').value,
@@ -377,7 +440,7 @@ if (formFeedback) {
                 if (window.showToast) window.showToast(data.erro || 'Erro ao enviar avaliação.', 'error');
             }
         } catch (error) {
-            msgDiv.innerHTML = '<span class="text-rose-600">Erro de ligação.</span>';
+            msgDiv.innerHTML = '<span class="text-rose-600">Erro de conexão.</span>';
             if (window.showToast) window.showToast('Erro de conexão com o servidor.', 'error');
         }
     });
@@ -397,7 +460,7 @@ async function carregarMeusFeedbacks(){
         divFeedbacks.innerHTML = '';
         if (!Array.isArray(feedbacks) || feedbacks.length === 0) {
             divFeedbacks.innerHTML = `
-                <div class="col-span-full bg-white rounded-3xl border border-slate-200 p-8 sm:p-12 text-center">
+                <div class="col-span-full bg-white rounded-3xl border border-slate-200/80 p-8 sm:p-12 text-center shadow-soft-sm">
                     <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-600 text-2xl mb-4">
                         💬
                     </div>
@@ -412,13 +475,13 @@ async function carregarMeusFeedbacks(){
             const estrelas = '⭐'.repeat(Math.max(1, Math.min(5, f.nota || 5)));
             const dataFormatada = new Date(f.created_at).toLocaleDateString('pt-BR');
             const safeCursoNome = window.escapeHTML ? window.escapeHTML(f.curso_nome || 'Curso') : (f.curso_nome || 'Curso');
-            const safeComentarioTexto = f.comentario ? `"${window.escapeHTML ? window.escapeHTML(f.comentario) : f.comentario}"` : '<span class="text-slate-400 italic">Apenas nota, sem texto.</span>';
+            const safeComentarioTexto = f.comentario ? `"${window.escapeHTML ? window.escapeHTML(f.comentario) : f.comentario}"` : '<span class="text-slate-400 italic">Apenas nota, sem comentário em texto.</span>';
 
             const card = `
-                <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 flex flex-col justify-between">
+                <div class="bg-white rounded-3xl border border-slate-200/80 shadow-soft-sm p-6 flex flex-col justify-between">
                     <div>
                         <div class="flex items-center justify-between gap-2 mb-2">
-                            <h3 class="font-bold text-slate-900 text-sm truncate">${safeCursoNome}</h3>
+                            <h3 class="font-extrabold text-slate-900 text-sm truncate">${safeCursoNome}</h3>
                             <span class="text-xs text-slate-400 font-medium">${dataFormatada}</span>
                         </div>
                         <div class="text-amber-500 text-sm mb-3">${estrelas}</div>
@@ -429,12 +492,13 @@ async function carregarMeusFeedbacks(){
             divFeedbacks.innerHTML += card;
         });
     } catch (error) {
-        divFeedbacks.innerHTML = '<div class="col-span-full text-center py-10 text-rose-500 text-sm">Erro ao carregar o histórico de avaliações.</div>';
+        divFeedbacks.innerHTML = '<div class="col-span-full text-center py-10 text-rose-500 text-sm font-semibold">Erro ao carregar o histórico de avaliações.</div>';
     }
 }
 
 // Navegação de Retorno
 document.addEventListener('DOMContentLoaded', () => {
+    configurarSaudacao();
     if(token) {
         try {
             const payloadToken = JSON.parse(atob(token.split('.')[1]));
@@ -451,6 +515,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Inicialização
+configurarSaudacao();
 carregarMeusFeedbacks();
 carregarCursos();
 carregarMeusAgendamentos();

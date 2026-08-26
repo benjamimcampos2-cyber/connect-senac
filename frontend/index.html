@@ -8,47 +8,54 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-    </style>
 </head>
-<body class="h-full flex items-center justify-center p-4 sm:p-6 lg:p-8">
+<body class="min-h-full flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-gradient-to-br from-slate-50 via-brand-50/30 to-slate-100 antialiased">
 
-    <div class="w-full max-w-md">
-        <!-- Logo / Header -->
+    <main class="w-full max-w-md my-auto">
+        <!-- Logo / Cabeçalho Institucional -->
         <div class="text-center mb-8">
-            <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-brand-600 shadow-lg shadow-brand-600/30 text-white text-2xl font-bold mb-4">
-                CS
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-brand-700 to-brand-500 shadow-soft-xl text-white text-2xl font-black mb-4 relative ring-4 ring-white">
+                <span>CS</span>
+                <span class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-senac-orange border-2 border-white" title="Senac Ativo" aria-hidden="true"></span>
             </div>
             <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Connect Senac</h1>
-            <p class="text-sm text-slate-500 mt-1.5">Insira as suas credenciais para aceder ao sistema</p>
+            <p class="text-sm text-slate-500 mt-1.5">Acesse com a sua conta para gerenciar agendamentos</p>
         </div>
 
         <!-- Card de Login -->
-        <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-200/60 border border-slate-100">
-            <form id="formLogin" class="space-y-5">
+        <div class="bg-white/95 backdrop-blur-sm rounded-3xl p-6 sm:p-8 shadow-soft-xl border border-slate-200/80">
+            <form id="formLogin" class="space-y-5" novalidate>
                 <div>
-                    <label for="email" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">E-mail institucional ou pessoal</label>
+                    <label for="email" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">E-mail Institucional ou Pessoal</label>
                     <div class="relative">
-                        <input type="email" id="email" placeholder="seu.email@exemplo.com" required
-                            class="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm text-slate-800 transition focus:bg-white focus:border-brand-600 focus:outline-none focus:ring-4 focus:ring-brand-600/10">
+                        <input type="email" id="email" placeholder="seu.email@exemplo.com" required autocomplete="email"
+                            class="w-full rounded-xl border border-slate-200 bg-slate-50/60 px-4 py-3 text-sm text-slate-800 transition focus:bg-white focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-600 focus:ring-offset-1">
                     </div>
                 </div>
 
                 <div>
                     <div class="flex items-center justify-between mb-2">
-                        <label for="senha" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider">Palavra-passe</label>
-                        <a href="esqueci-senha.html" class="text-xs font-semibold text-brand-600 hover:text-brand-800 transition">Esqueceu a senha?</a>
+                        <label for="senha" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Senha de Acesso</label>
+                        <a href="esqueci-senha.html" class="text-xs font-semibold text-brand-600 hover:text-brand-800 transition-colors">Esqueceu a senha?</a>
                     </div>
                     <div class="relative">
-                        <input type="password" id="senha" placeholder="••••••••" required
-                            class="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm text-slate-800 transition focus:bg-white focus:border-brand-600 focus:outline-none focus:ring-4 focus:ring-brand-600/10">
+                        <input type="password" id="senha" placeholder="••••••••" required autocomplete="current-password"
+                            class="w-full rounded-xl border border-slate-200 bg-slate-50/60 pl-4 pr-11 py-3 text-sm text-slate-800 transition focus:bg-white focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-600 focus:ring-offset-1">
+                        <button type="button" id="btnToggleSenha" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none focus:text-brand-600 p-1.5 transition-colors" aria-label="Mostrar ou ocultar senha">
+                            <svg id="iconOlhoAberto" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                            <svg id="iconOlhoFechado" class="w-4 h-4 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+                            </svg>
+                        </button>
                     </div>
                 </div>
 
-                <div id="mensagemErro" class="hidden rounded-xl bg-rose-50 border border-rose-200 p-3.5 text-xs font-medium text-rose-700"></div>
+                <div id="mensagemErro" role="alert" aria-live="assertive" class="hidden rounded-xl bg-rose-50 border border-rose-200 p-3.5 text-xs font-semibold text-rose-700"></div>
 
-                <button type="submit" class="w-full inline-flex items-center justify-center rounded-xl bg-brand-600 py-3.5 px-4 text-sm font-bold text-white shadow-lg shadow-brand-600/25 hover:bg-brand-800 focus:outline-none focus:ring-4 focus:ring-brand-600/20 active:scale-[0.99] transition-all">
+                <button type="submit" id="btnSubmit" class="btn-brand w-full py-3.5 text-sm font-bold shadow-soft-md">
                     Entrar na Plataforma
                 </button>
             </form>
@@ -56,17 +63,33 @@
             <div class="mt-8 pt-6 border-t border-slate-100 text-center">
                 <p class="text-sm text-slate-500">
                     Ainda não tem uma conta? 
-                    <a href="cadastro.html" class="font-bold text-brand-600 hover:text-brand-800 hover:underline transition">Registe-se aqui</a>
+                    <a href="cadastro.html" class="font-bold text-brand-600 hover:text-brand-800 hover:underline transition">Cadastre-se gratuitamente</a>
                 </p>
             </div>
         </div>
 
-        <p class="text-center text-xs text-slate-400 mt-6">
-            &copy; 2026 Connect Senac - Todos os direitos reservados.
-        </p>
-    </div>
+        <footer class="text-center text-xs text-slate-400 mt-6 space-y-1">
+            <p>&copy; 2026 Connect Senac - Sistema de Gestão de Modelos</p>
+            <p class="text-[11px] text-slate-400">Desenvolvido para atendimento pedagógico institucional</p>
+        </footer>
+    </main>
 
     <script src="js/toast.js"></script>
     <script src="js/auth.js"></script>
+    <script>
+        const btnToggleSenha = document.getElementById('btnToggleSenha');
+        const inputSenha = document.getElementById('senha');
+        const iconAberto = document.getElementById('iconOlhoAberto');
+        const iconFechado = document.getElementById('iconOlhoFechado');
+
+        if (btnToggleSenha && inputSenha) {
+            btnToggleSenha.addEventListener('click', () => {
+                const isPassword = inputSenha.type === 'password';
+                inputSenha.type = isPassword ? 'text' : 'password';
+                iconAberto.classList.toggle('hidden', isPassword);
+                iconFechado.classList.toggle('hidden', !isPassword);
+            });
+        }
+    </script>
 </body>
 </html>

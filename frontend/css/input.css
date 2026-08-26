@@ -3,10 +3,31 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     @apply bg-slate-50 text-slate-800 font-sans antialiased selection:bg-brand-100 selection:text-brand-900;
   }
 
+  /* Custom Modern Scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #f1f5f9;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
+
+  /* Form Elements com Foco Acessível (WCAG 2.2) */
   input[type="text"],
   input[type="email"],
   input[type="password"],
@@ -16,38 +37,46 @@
   input[type="datetime-local"],
   select,
   textarea {
-    @apply block w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-800 shadow-sm transition placeholder:text-slate-400 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-600/20 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500;
+    @apply block w-full rounded-xl border border-slate-200 bg-white/90 px-4 py-3 text-sm text-slate-800 shadow-sm transition-all duration-200 placeholder:text-slate-400 focus:bg-white focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-600 focus:ring-offset-1 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400;
   }
 }
 
 @layer components {
-  /* Botões Reutilizáveis */
+  /* Botões Reutilizáveis com Microinterações */
   .btn-brand {
-    @apply inline-flex items-center justify-center font-semibold rounded-xl px-4 py-2.5 bg-brand-600 hover:bg-brand-800 text-white transition-all shadow-sm active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none;
+    @apply inline-flex items-center justify-center gap-2 font-bold rounded-xl px-5 py-3 bg-brand-600 hover:bg-brand-800 text-white transition-all duration-150 shadow-md shadow-brand-600/20 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  .btn-orange {
+    @apply inline-flex items-center justify-center gap-2 font-bold rounded-xl px-5 py-3 bg-senac-orange hover:bg-senac-orange-hover text-white transition-all duration-150 shadow-md shadow-senac-orange/25 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-senac-orange focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center font-semibold rounded-xl px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none;
+    @apply inline-flex items-center justify-center gap-2 font-semibold rounded-xl px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all duration-150 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-1 disabled:opacity-50 disabled:pointer-events-none;
   }
 
   .btn-success {
-    @apply inline-flex items-center justify-center font-semibold rounded-xl px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white transition-all shadow-sm active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none;
+    @apply inline-flex items-center justify-center gap-2 font-bold rounded-xl px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white transition-all duration-150 shadow-sm shadow-emerald-600/20 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
   }
 
   .btn-danger {
-    @apply inline-flex items-center justify-center font-semibold rounded-xl px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white transition-all shadow-sm active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none;
+    @apply inline-flex items-center justify-center gap-2 font-bold rounded-xl px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white transition-all duration-150 shadow-sm shadow-rose-600/20 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-600 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
   }
 
   .card-container {
-    @apply bg-white rounded-2xl border border-slate-200 shadow-sm transition-all;
+    @apply bg-white rounded-3xl border border-slate-200/80 shadow-soft-sm hover:shadow-soft-md transition-all duration-200;
+  }
+
+  .glass-header {
+    @apply bg-brand-600/95 backdrop-blur-md text-white border-b border-white/10;
   }
 }
 
 /* ==========================================================================
-   Compatibilidade e Transições de Modais, Abas e Acordeões (Tailwind UI)
+   Modais, Abas e Acordeões Fluídos
    ========================================================================== */
 
-/* Modais Centralizados e Fluidos */
+/* Modais Centralizados com Backdrop Suave */
 .modal {
   position: fixed;
   inset: 0;
@@ -56,8 +85,8 @@
   align-items: center;
   justify-content: center;
   padding: 1rem;
-  background-color: rgba(15, 23, 42, 0.65);
-  backdrop-filter: blur(4px);
+  background-color: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(6px);
   overflow-y: auto;
 }
 
@@ -81,11 +110,11 @@
 }
 
 .modal-dialog.modal-lg {
-  max-width: 48rem !important;
+  max-width: 52rem !important;
 }
 
 .modal-content {
-  @apply relative w-full bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden;
+  @apply relative w-full bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden;
 }
 
 .modal-backdrop {
@@ -100,11 +129,11 @@
 .tab-pane.active,
 .tab-pane.show {
   display: block;
-  animation: fadeIn 0.2s ease-in-out;
+  animation: fadeIn 0.25s ease-out;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(3px); }
+  from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
@@ -120,7 +149,7 @@
 .collapse.show {
   display: block !important;
   visibility: visible !important;
-  animation: fadeIn 0.2s ease-in-out;
+  animation: fadeIn 0.2s ease-out;
 }
 
 .collapsing {
@@ -129,11 +158,12 @@
 
 /* Badges e Tags Dinâmicas */
 .badge {
-  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold;
+  @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold tracking-wide;
 }
-.bg-success { @apply bg-emerald-100 text-emerald-800 !important; }
-.bg-primary { @apply bg-brand-100 text-brand-800 !important; }
-.bg-danger { @apply bg-rose-100 text-rose-800 !important; }
-.bg-warning { @apply bg-amber-100 text-amber-800 !important; }
-.bg-secondary { @apply bg-slate-100 text-slate-700 !important; }
-.bg-info { @apply bg-sky-100 text-sky-800 !important; }
+.bg-success { @apply bg-emerald-50 text-emerald-700 border border-emerald-200 !important; }
+.bg-primary { @apply bg-brand-50 text-brand-700 border border-brand-200 !important; }
+.bg-danger { @apply bg-rose-50 text-rose-700 border border-rose-200 !important; }
+.bg-warning { @apply bg-amber-50 text-amber-800 border border-amber-200 !important; }
+.bg-secondary { @apply bg-slate-100 text-slate-700 border border-slate-200 !important; }
+.bg-info { @apply bg-sky-50 text-sky-700 border border-sky-200 !important; }
+

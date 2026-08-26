@@ -1,38 +1,38 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="h-full bg-slate-50">
+<html lang="pt-BR" class="h-full bg-slate-50 scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connect Senac - Central de Administração</title>
+    <title>Connect Senac - Central Administrativa</title>
     <link rel="stylesheet" href="css/output.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-    </style>
 </head>
-<body class="min-h-full flex flex-col bg-slate-50 text-slate-800">
+<body class="min-h-full flex flex-col bg-slate-50 text-slate-800 antialiased">
 
-    <!-- Header Principal -->
-    <header class="sticky top-0 z-40 bg-brand-600 text-white shadow-md shadow-brand-900/10">
+    <!-- Header Principal Glassmorphism -->
+    <header class="sticky top-0 z-40 bg-brand-600/95 backdrop-blur-md text-white shadow-soft-md border-b border-white/10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16 sm:h-20">
                 <div class="flex items-center gap-3">
-                    <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-white/10 text-white font-bold text-lg backdrop-blur-sm border border-white/20">
+                    <div class="flex items-center justify-center w-11 h-11 rounded-2xl bg-white text-brand-600 font-black text-lg shadow-soft-sm relative">
                         CS
+                        <span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-senac-orange border-2 border-white" aria-hidden="true"></span>
                     </div>
                     <div>
-                        <a href="#" class="font-extrabold text-lg sm:text-xl tracking-tight text-white">Connect Senac</a>
-                        <span class="hidden sm:inline-block ml-2 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-white/15 text-white">Admin Hub</span>
+                        <a href="admin.html" class="font-extrabold text-lg sm:text-xl tracking-tight text-white flex items-center gap-2">
+                            Connect Senac
+                        </a>
+                        <span class="hidden sm:inline-block text-[11px] font-semibold px-2 py-0.5 rounded-full bg-white/15 text-white/90">Painel de Gestão</span>
                     </div>
                 </div>
 
                 <div class="flex items-center gap-2 sm:gap-3">
-                    <a href="painel.html" class="inline-flex items-center gap-1.5 rounded-xl bg-amber-400/20 hover:bg-amber-400/30 text-amber-200 border border-amber-400/30 text-xs sm:text-sm font-bold px-3 py-2 transition active:scale-95">
-                        👁️ <span class="hidden sm:inline">Ver Visão do Modelo</span>
+                    <a href="painel.html" class="inline-flex items-center gap-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white border border-white/20 text-xs sm:text-sm font-bold px-3.5 py-2 transition active:scale-95">
+                        👁️ <span class="hidden sm:inline">Visão do Modelo</span>
                     </a>
-                    <button id="btnSair" class="inline-flex items-center justify-center rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs sm:text-sm font-semibold px-3.5 py-2 border border-white/20 transition active:scale-95">
+                    <button id="btnSair" class="inline-flex items-center justify-center rounded-xl bg-white/10 hover:bg-rose-600/80 text-white text-xs sm:text-sm font-semibold px-3.5 py-2 border border-white/20 transition-all active:scale-95">
                         Sair
                     </button>
                 </div>
@@ -41,32 +41,38 @@
     </header>
 
     <!-- Sub-barra de Status do Usuário -->
-    <div class="bg-white border-b border-slate-200/80 py-3">
+    <div class="bg-white border-b border-slate-200/80 py-3 shadow-soft-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between text-xs">
-            <span class="text-slate-500">Ligado como: <strong id="userNome" class="text-slate-900 font-bold">--</strong></span>
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full font-bold bg-brand-50 text-brand-700 uppercase" id="userPerfil">--</span>
+            <span class="text-slate-500 flex items-center gap-1.5 font-medium">
+                <span>Conectado como:</span>
+                <strong id="userNome" class="text-slate-900 font-bold">--</strong>
+            </span>
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full font-bold bg-brand-50 text-brand-700 border border-brand-200 uppercase tracking-wider" id="userPerfil">
+                <span class="w-1.5 h-1.5 rounded-full bg-brand-600"></span>
+                --
+            </span>
         </div>
     </div>
 
     <!-- Conteúdo Principal -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-        <!-- Abas de Navegação Moderna -->
+        <!-- Abas de Navegação -->
         <div class="border-b border-slate-200 mb-8 overflow-x-auto">
             <nav class="flex space-x-2 sm:space-x-4 min-w-max" id="adminTabs" role="tablist">
-                <button class="px-4 py-3 border-b-2 font-bold text-sm text-brand-600 border-brand-600 transition flex items-center gap-2" id="visao-tab" data-bs-toggle="tab" data-bs-target="#visao" type="button">
+                <button class="px-4 py-3 border-b-2 font-bold text-sm text-brand-600 border-brand-600 transition flex items-center gap-2" id="visao-tab" data-bs-toggle="tab" data-bs-target="#visao" type="button" role="tab" aria-controls="visao" aria-selected="true">
                     <span>📊</span> Visão Geral
                 </button>
-                <button class="px-4 py-3 border-b-2 font-semibold text-sm text-slate-500 border-transparent hover:text-slate-700 hover:border-slate-300 transition flex items-center gap-2" id="catalogo-tab" data-bs-toggle="tab" data-bs-target="#catalogo" type="button">
+                <button class="px-4 py-3 border-b-2 font-semibold text-sm text-slate-500 border-transparent hover:text-slate-700 hover:border-slate-300 transition flex items-center gap-2" id="catalogo-tab" data-bs-toggle="tab" data-bs-target="#catalogo" type="button" role="tab" aria-controls="catalogo" aria-selected="false">
                     <span>🏷️</span> Gestão de Cursos
                 </button>
-                <button class="px-4 py-3 border-b-2 font-semibold text-sm text-slate-500 border-transparent hover:text-slate-700 hover:border-slate-300 transition flex items-center gap-2" id="usuarios-tab" data-bs-toggle="tab" data-bs-target="#usuarios" type="button">
-                    <span>👥</span> Utilizadores & Moderação
+                <button class="px-4 py-3 border-b-2 font-semibold text-sm text-slate-500 border-transparent hover:text-slate-700 hover:border-slate-300 transition flex items-center gap-2" id="usuarios-tab" data-bs-toggle="tab" data-bs-target="#usuarios" type="button" role="tab" aria-controls="usuarios" aria-selected="false">
+                    <span>👥</span> Usuários & Moderação
                 </button>
-                <button class="px-4 py-3 border-b-2 font-semibold text-sm text-slate-500 border-transparent hover:text-slate-700 hover:border-slate-300 transition flex items-center gap-2" id="pautas-tab" data-bs-toggle="tab" data-bs-target="#pautas" type="button">
+                <button class="px-4 py-3 border-b-2 font-semibold text-sm text-slate-500 border-transparent hover:text-slate-700 hover:border-slate-300 transition flex items-center gap-2" id="pautas-tab" data-bs-toggle="tab" data-bs-target="#pautas" type="button" role="tab" aria-controls="pautas" aria-selected="false">
                     <span>📅</span> Pautas Globais
                 </button>
-                <button class="px-4 py-3 border-b-2 font-semibold text-sm text-slate-500 border-transparent hover:text-slate-700 hover:border-slate-300 transition flex items-center gap-2" id="equipa-tab" data-bs-toggle="tab" data-bs-target="#equipa" type="button">
+                <button class="px-4 py-3 border-b-2 font-semibold text-sm text-slate-500 border-transparent hover:text-slate-700 hover:border-slate-300 transition flex items-center gap-2" id="equipa-tab" data-bs-toggle="tab" data-bs-target="#equipa" type="button" role="tab" aria-controls="equipa" aria-selected="false">
                     <span>🔑</span> Criar Colaborador
                 </button>
             </nav>
@@ -75,118 +81,134 @@
         <div class="tab-content" id="adminTabsContent">
 
             <!-- TAB 1: VISÃO GERAL -->
-            <div class="tab-pane active" id="visao">
-                <!-- Grid de Métricas com Skeletons Iniciais -->
+            <div class="tab-pane active" id="visao" role="tabpanel" aria-labelledby="visao-tab">
+                <!-- Grid de Métricas KPI -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8" id="painelMetricas">
                     <!-- Métrica 1 -->
-                    <div class="bg-white rounded-3xl p-6 border border-slate-200 border-l-4 border-l-brand-600 shadow-sm">
-                        <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Modelos Cadastrados</div>
-                        <div class="text-3xl font-extrabold text-slate-900" id="metricUsuarios">--</div>
+                    <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-soft-sm hover:shadow-soft-md transition-all relative overflow-hidden">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Modelos Cadastrados</span>
+                            <span class="p-2 rounded-xl bg-brand-50 text-brand-600 text-sm">👤</span>
+                        </div>
+                        <div class="text-3xl font-black text-slate-900" id="metricUsuarios">--</div>
+                        <div class="h-1 w-12 bg-brand-600 rounded-full mt-3"></div>
                     </div>
                     <!-- Métrica 2 -->
-                    <div class="bg-white rounded-3xl p-6 border border-slate-200 border-l-4 border-l-sky-500 shadow-sm">
-                        <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Agendamentos Ativos</div>
-                        <div class="text-3xl font-extrabold text-sky-600" id="metricAgendados">--</div>
+                    <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-soft-sm hover:shadow-soft-md transition-all relative overflow-hidden">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Agendamentos Ativos</span>
+                            <span class="p-2 rounded-xl bg-sky-50 text-sky-600 text-sm">📅</span>
+                        </div>
+                        <div class="text-3xl font-black text-sky-600" id="metricAgendados">--</div>
+                        <div class="h-1 w-12 bg-sky-500 rounded-full mt-3"></div>
                     </div>
                     <!-- Métrica 3 -->
-                    <div class="bg-white rounded-3xl p-6 border border-slate-200 border-l-4 border-l-emerald-500 shadow-sm">
-                        <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Concluídos com Sucesso</div>
-                        <div class="text-3xl font-extrabold text-emerald-600" id="metricConcluidos">--</div>
+                    <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-soft-sm hover:shadow-soft-md transition-all relative overflow-hidden">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Concluídos com Sucesso</span>
+                            <span class="p-2 rounded-xl bg-emerald-50 text-emerald-600 text-sm">✅</span>
+                        </div>
+                        <div class="text-3xl font-black text-emerald-600" id="metricConcluidos">--</div>
+                        <div class="h-1 w-12 bg-emerald-500 rounded-full mt-3"></div>
                     </div>
                     <!-- Métrica 4 -->
-                    <div class="bg-white rounded-3xl p-6 border border-slate-200 border-l-4 border-l-rose-500 shadow-sm">
-                        <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Taxa de Cancelamento</div>
-                        <div class="text-3xl font-extrabold text-rose-600" id="metricCancelamento">--</div>
+                    <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-soft-sm hover:shadow-soft-md transition-all relative overflow-hidden">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Taxa de Cancelamento</span>
+                            <span class="p-2 rounded-xl bg-rose-50 text-rose-600 text-sm">📉</span>
+                        </div>
+                        <div class="text-3xl font-black text-rose-600" id="metricCancelamento">--</div>
+                        <div class="h-1 w-12 bg-rose-500 rounded-full mt-3"></div>
                     </div>
                 </div>
 
                 <!-- Grid Formulários: Cadastrar Curso & Disponibilizar Vagas -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <!-- Card: Cadastrar Curso -->
-                    <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
-                        <div class="flex items-center gap-2.5 pb-4 border-b border-slate-100">
-                            <span class="text-xl">📚</span>
+                    <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-soft-sm space-y-6">
+                        <div class="flex items-center gap-3 pb-4 border-b border-slate-100">
+                            <span class="p-2 rounded-xl bg-brand-50 text-brand-600 text-lg shadow-soft-sm">📚</span>
                             <h2 class="text-lg font-bold text-slate-900">Cadastrar Novo Curso</h2>
                         </div>
 
-                        <form id="formCurso" class="space-y-4">
+                        <form id="formCurso" class="space-y-4" novalidate>
                             <div>
-                                <label for="nomeCurso" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Nome do Curso</label>
+                                <label for="nomeCurso" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Nome do Curso</label>
                                 <input type="text" id="nomeCurso" placeholder="Ex: Corte e Penteado Avançado" required class="w-full">
                             </div>
 
                             <div>
-                                <label for="selectProfissional" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Professor Responsável</label>
+                                <label for="selectProfissional" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Instrutor(a) Responsável</label>
                                 <select id="selectProfissional" required class="w-full">
-                                    <option value="" disabled selected>Carregando professores...</option>
+                                    <option value="" disabled selected>Carregando instrutores...</option>
                                 </select>
                             </div>
 
                             <div>
-                                <label for="descricaoCurso" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Descrição</label>
-                                <textarea id="descricaoCurso" rows="2" placeholder="Breve resumo da aula prática..." required class="w-full"></textarea>
+                                <label for="descricaoCurso" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Descrição do Serviço Prático</label>
+                                <textarea id="descricaoCurso" rows="2" placeholder="Resumo pedagógico e o que será realizado na aula prática..." required class="w-full"></textarea>
                             </div>
 
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label for="motivoCurso" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Benefícios (Opcional)</label>
-                                    <textarea id="motivoCurso" rows="2" placeholder="Vantagens para o modelo..." class="w-full"></textarea>
+                                    <label for="motivoCurso" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Benefícios ao Modelo (Opcional)</label>
+                                    <textarea id="motivoCurso" rows="2" placeholder="Vantagens do atendimento..." class="w-full"></textarea>
                                 </div>
                                 <div>
-                                    <label for="restricoesCurso" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Restrições (Opcional)</label>
+                                    <label for="restricoesCurso" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Requisitos / Restrições (Opcional)</label>
                                     <textarea id="restricoesCurso" rows="2" placeholder="Ex: Cabelos sem química prévia..." class="w-full"></textarea>
                                 </div>
                             </div>
 
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label for="fotoCurso" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">URL da Imagem de Capa</label>
+                                    <label for="fotoCurso" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">URL da Imagem de Capa</label>
                                     <input type="url" id="fotoCurso" placeholder="https://exemplo.com/foto.jpg" class="w-full">
                                 </div>
                                 <div>
-                                    <label for="localCurso" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Localização</label>
+                                    <label for="localCurso" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Localização / Unidade</label>
                                     <input type="text" id="localCurso" value="SENAC - Santo Antônio de Jesus, BA" required class="w-full">
                                 </div>
                             </div>
 
-                            <div id="msgCurso" class="text-center text-xs font-bold"></div>
+                            <div id="msgCurso" role="alert" aria-live="polite" class="text-center text-xs font-bold"></div>
 
-                            <button type="submit" class="w-full btn-brand py-3">
-                                Salvar Curso
+                            <button type="submit" class="w-full btn-brand py-3 text-sm font-bold shadow-soft-sm">
+                                Salvar Curso no Catálogo
                             </button>
                         </form>
                     </div>
 
                     <!-- Card: Disponibilizar Vagas -->
-                    <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
-                        <div class="flex items-center gap-2.5 pb-4 border-b border-slate-100">
-                            <span class="text-xl">📅</span>
+                    <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-soft-sm space-y-6">
+                        <div class="flex items-center gap-3 pb-4 border-b border-slate-100">
+                            <span class="p-2 rounded-xl bg-senac-orange-light text-senac-orange text-lg shadow-soft-sm">📅</span>
                             <h2 class="text-lg font-bold text-slate-900">Disponibilizar Vagas e Horários</h2>
                         </div>
 
-                        <form id="formVagas" class="space-y-4">
+                        <form id="formVagas" class="space-y-4" novalidate>
                             <div>
-                                <label for="selectCurso" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Vincular ao Curso</label>
+                                <label for="selectCurso" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Vincular ao Curso</label>
                                 <select id="selectCurso" required class="w-full">
-                                    <option value="" disabled selected>A carregar cursos...</option>
+                                    <option value="" disabled selected>Carregando cursos ativos...</option>
                                 </select>
                             </div>
 
                             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                 <div class="sm:col-span-2">
-                                    <label for="dataHora" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Data e Hora</label>
+                                    <label for="dataHora" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Data e Horário</label>
                                     <input type="datetime-local" id="dataHora" required class="w-full">
                                 </div>
                                 <div>
-                                    <label for="vagasTotais" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Vagas</label>
+                                    <label for="vagasTotais" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Nº de Vagas</label>
                                     <input type="number" id="vagasTotais" min="1" placeholder="Ex: 10" required class="w-full">
                                 </div>
                             </div>
 
-                            <div id="msgVaga" class="text-center text-xs font-bold"></div>
+                            <div id="msgVaga" role="alert" aria-live="polite" class="text-center text-xs font-bold"></div>
 
-                            <button type="submit" class="w-full btn-success py-3">
-                                Abrir Horário
+                            <button type="submit" class="w-full btn-orange py-3 text-sm font-bold shadow-soft-sm">
+                                Abrir Vagas na Vitrine
                             </button>
                         </form>
                     </div>
@@ -194,10 +216,13 @@
             </div>
 
             <!-- TAB 2: CATÁLOGO DE CURSOS -->
-            <div class="tab-pane" id="catalogo">
-                <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8">
+            <div class="tab-pane" id="catalogo" role="tabpanel" aria-labelledby="catalogo-tab">
+                <div class="bg-white rounded-3xl border border-slate-200/80 shadow-soft-sm p-6 sm:p-8">
                     <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
-                        <h2 class="text-lg font-bold text-slate-900">🏷️ Catálogo Completo de Cursos</h2>
+                        <div class="flex items-center gap-3">
+                            <span class="p-2 rounded-xl bg-brand-50 text-brand-600 text-lg shadow-soft-sm">🏷️</span>
+                            <h2 class="text-lg font-bold text-slate-900">Catálogo Completo de Cursos</h2>
+                        </div>
                     </div>
 
                     <div class="overflow-x-auto rounded-2xl border border-slate-200/80">
@@ -205,25 +230,28 @@
                             <thead class="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider">
                                 <tr>
                                     <th class="py-3 px-4">Curso</th>
-                                    <th class="py-3 px-4">Professor</th>
+                                    <th class="py-3 px-4">Instrutor Responsável</th>
                                     <th class="py-3 px-4">Localização</th>
                                     <th class="py-3 px-4">Status</th>
                                     <th class="py-3 px-4 text-right">Ações</th>
                                 </tr>
                             </thead>
                             <tbody id="tabelaCursosBody" class="divide-y divide-slate-100 bg-white">
-                                <tr><td colspan="5" class="text-center text-slate-400 py-6">A carregar catálogo...</td></tr>
+                                <tr><td colspan="5" class="text-center text-slate-400 py-8">Carregando catálogo...</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
-            <!-- TAB 3: UTILIZADORES & MODERAÇÃO -->
-            <div class="tab-pane" id="usuarios">
-                <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-6">
+            <!-- TAB 3: USUÁRIOS & MODERAÇÃO -->
+            <div class="tab-pane" id="usuarios" role="tabpanel" aria-labelledby="usuarios-tab">
+                <div class="bg-white rounded-3xl border border-slate-200/80 shadow-soft-sm p-6 sm:p-8 space-y-6">
                     <div class="flex items-center justify-between pb-4 border-b border-slate-100">
-                        <h2 class="text-lg font-bold text-slate-900">👥 Base de Utilizadores e Histórico</h2>
+                        <div class="flex items-center gap-3">
+                            <span class="p-2 rounded-xl bg-brand-50 text-brand-600 text-lg shadow-soft-sm">👥</span>
+                            <h2 class="text-lg font-bold text-slate-900">Base de Usuários e Histórico de Participação</h2>
+                        </div>
                     </div>
 
                     <!-- Filtros Inteligentes -->
@@ -235,13 +263,13 @@
                             <select id="filtroPerfilUser" class="w-full">
                                 <option value="">Todos os Perfis</option>
                                 <option value="candidato">Candidatos (Modelos)</option>
-                                <option value="profissional">Profissionais (Professores)</option>
+                                <option value="profissional">Profissionais (Instrutores)</option>
                                 <option value="coordenador">Coordenadores</option>
                                 <option value="admin">Administradores</option>
                             </select>
                         </div>
                         <div class="sm:col-span-2">
-                            <button id="btnLimparFiltros" class="w-full btn-secondary py-2 text-xs">Limpar</button>
+                            <button id="btnLimparFiltros" class="w-full btn-secondary py-2.5 text-xs font-bold">Limpar</button>
                         </div>
                     </div>
 
@@ -251,8 +279,8 @@
                                 <tr>
                                     <th class="py-3 px-4">Nome</th>
                                     <th class="py-3 px-4">Contato</th>
-                                    <th class="py-3 px-4">Função</th>
-                                    <th class="py-3 px-4">Matrícula</th>
+                                    <th class="py-3 px-4">Perfil</th>
+                                    <th class="py-3 px-4">Data Registro</th>
                                     <th class="py-3 px-4 text-center">Confirmados</th>
                                     <th class="py-3 px-4 text-center">Concluídos</th>
                                     <th class="py-3 px-4 text-center">Cancelados</th>
@@ -260,7 +288,7 @@
                                 </tr>
                             </thead>
                             <tbody id="tabelaUsuariosBody" class="divide-y divide-slate-100 bg-white">
-                                <tr><td colspan="8" class="text-center text-slate-400 py-6">A carregar utilizadores...</td></tr>
+                                <tr><td colspan="8" class="text-center text-slate-400 py-8">Carregando usuários...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -268,63 +296,66 @@
             </div>
 
             <!-- TAB 4: PAUTAS GLOBAIS -->
-            <div class="tab-pane" id="pautas">
-                <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8">
+            <div class="tab-pane" id="pautas" role="tabpanel" aria-labelledby="pautas-tab">
+                <div class="bg-white rounded-3xl border border-slate-200/80 shadow-soft-sm p-6 sm:p-8">
                     <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
-                        <h2 class="text-lg font-bold text-slate-900">📅 Pautas e Inscrições por Turma</h2>
+                        <div class="flex items-center gap-3">
+                            <span class="p-2 rounded-xl bg-brand-50 text-brand-600 text-lg shadow-soft-sm">📅</span>
+                            <h2 class="text-lg font-bold text-slate-900">Pautas Globais e Inscrições por Turma</h2>
+                        </div>
                     </div>
 
                     <div class="space-y-4" id="accordionPautasGlobais">
-                        <div class="text-center text-slate-400 py-10">A carregar a visão global...</div>
+                        <div class="text-center text-slate-400 py-10">Carregando a visão global...</div>
                     </div>
                 </div>
             </div>
 
             <!-- TAB 5: CRIAR COLABORADOR -->
-            <div class="tab-pane" id="equipa">
-                <div class="max-w-xl mx-auto bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-10 space-y-6">
+            <div class="tab-pane" id="equipa" role="tabpanel" aria-labelledby="equipa-tab">
+                <div class="max-w-xl mx-auto bg-white rounded-3xl border border-slate-200/80 shadow-soft-sm p-6 sm:p-10 space-y-6">
                     <div class="text-center pb-4 border-b border-slate-100">
-                        <div class="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-brand-50 text-brand-600 text-xl font-bold mb-2">
+                        <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-brand-50 text-brand-600 text-2xl font-bold mb-2 shadow-soft-sm">
                             🔑
                         </div>
-                        <h2 class="text-xl font-bold text-slate-900">Registar Membro da Equipa</h2>
-                        <p class="text-xs text-slate-500 mt-0.5">Adicione professores, coordenadores ou administradores</p>
+                        <h2 class="text-xl font-extrabold text-slate-900">Cadastrar Membro da Equipe</h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Adicione professores, coordenadores ou administradores com privilégios institucionais</p>
                     </div>
 
-                    <form id="formColaborador" class="space-y-4">
+                    <form id="formColaborador" class="space-y-4" novalidate>
                         <div>
-                            <label for="colabNome" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Nome Completo</label>
-                            <input type="text" id="colabNome" required class="w-full">
+                            <label for="colabNome" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Nome Completo</label>
+                            <input type="text" id="colabNome" placeholder="Ex: Carlos Eduardo Lima" required class="w-full">
                         </div>
 
                         <div>
-                            <label for="colabEmail" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">E-mail Institucional</label>
-                            <input type="email" id="colabEmail" required class="w-full">
+                            <label for="colabEmail" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">E-mail Institucional</label>
+                            <input type="email" id="colabEmail" placeholder="carlos.lima@ba.senac.br" required class="w-full">
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <label for="colabTelefone" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Telefone</label>
-                                <input type="tel" id="colabTelefone" required class="w-full">
+                                <label for="colabTelefone" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Telefone / WhatsApp</label>
+                                <input type="tel" id="colabTelefone" placeholder="(75) 98888-8888" required class="w-full">
                             </div>
                             <div>
-                                <label for="colabSenha" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Palavra-passe Inicial</label>
-                                <input type="password" id="colabSenha" required class="w-full">
+                                <label for="colabSenha" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Senha Provisória</label>
+                                <input type="password" id="colabSenha" placeholder="Mínimo 6 dígitos" required class="w-full">
                             </div>
                         </div>
 
                         <div>
-                            <label for="colabPerfil" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Cargo / Permissão</label>
+                            <label for="colabPerfil" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Cargo / Nível de Acesso</label>
                             <select id="colabPerfil" required class="w-full">
-                                <option value="profissional">Profissional (Professor)</option>
+                                <option value="profissional">Profissional (Professor / Instrutor)</option>
                                 <option value="coordenador">Coordenador da Unidade</option>
                                 <option value="admin">Administrador Global</option>
                             </select>
                         </div>
 
-                        <div id="msgColab" class="text-center text-xs font-bold"></div>
+                        <div id="msgColab" role="alert" aria-live="polite" class="text-center text-xs font-bold"></div>
 
-                        <button type="submit" class="w-full btn-brand py-3.5">
+                        <button type="submit" class="w-full btn-brand py-3.5 text-sm font-bold shadow-soft-sm">
                             Criar Acesso Institucional
                         </button>
                     </form>
@@ -335,47 +366,47 @@
     </main>
 
     <!-- Modal: Editar Curso -->
-    <div class="modal fade" id="modalEditarCurso" tabindex="-1">
+    <div class="modal fade" id="modalEditarCurso" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="tituloModalEditarCurso">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="flex items-center justify-between p-6 border-b border-slate-100">
-                    <h3 class="text-lg font-bold text-slate-900">✏️ Editar Curso</h3>
-                    <button type="button" class="w-8 h-8 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 flex items-center justify-center transition" data-bs-dismiss="modal">✕</button>
+                    <h3 id="tituloModalEditarCurso" class="text-lg font-bold text-slate-900">✏️ Editar Curso</h3>
+                    <button type="button" class="w-8 h-8 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 flex items-center justify-center transition" data-bs-dismiss="modal" aria-label="Fechar">✕</button>
                 </div>
 
                 <div class="p-6 sm:p-8">
-                    <form id="formEditarCurso" class="space-y-4">
+                    <form id="formEditarCurso" class="space-y-4" novalidate>
                         <input type="hidden" id="editCursoId">
 
                         <div>
-                            <label for="editNome" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Nome do Curso</label>
+                            <label for="editNome" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Nome do Curso</label>
                             <input type="text" id="editNome" required class="w-full">
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <label for="editProfissional" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Professor Responsável</label>
+                                <label for="editProfissional" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Instrutor(a) Responsável</label>
                                 <select id="editProfissional" required class="w-full"></select>
                             </div>
                             <div>
-                                <label for="editLocal" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Localização</label>
+                                <label for="editLocal" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Localização</label>
                                 <input type="text" id="editLocal" class="w-full">
                             </div>
                         </div>
 
                         <div>
-                            <label for="editDescricao" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Descrição</label>
+                            <label for="editDescricao" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Descrição</label>
                             <textarea id="editDescricao" rows="3" required class="w-full"></textarea>
                         </div>
 
                         <div>
-                            <label for="editFoto" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">URL da Imagem de Capa</label>
+                            <label for="editFoto" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">URL da Imagem de Capa</label>
                             <input type="url" id="editFoto" class="w-full">
                         </div>
 
-                        <div id="msgEditCurso" class="text-center text-xs font-bold"></div>
+                        <div id="msgEditCurso" role="alert" aria-live="polite" class="text-center text-xs font-bold"></div>
 
-                        <button type="submit" class="w-full btn-brand py-3">
+                        <button type="submit" class="w-full btn-brand py-3 text-sm font-bold shadow-soft-sm">
                             Atualizar Curso
                         </button>
                     </form>
@@ -383,6 +414,14 @@
             </div>
         </div>
     </div>
+
+    <!-- Rodapé -->
+    <footer class="bg-white border-t border-slate-200 mt-16 py-8">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-400 space-y-1">
+            <p>&copy; 2026 Connect Senac - Sistema de Gestão de Modelos e Práticas Pedagógicas.</p>
+            <p class="text-[11px] text-slate-400">Módulo Administrativo e de Coordenação de Cursos.</p>
+        </div>
+    </footer>
 
     <!-- Bootstrap JS Bundle para suporte a Tabs e Modais -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

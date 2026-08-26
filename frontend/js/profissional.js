@@ -94,22 +94,26 @@ async function carregarMinhasTurmas() {
 
           let tabelaModelos = "";
           if (agendamentosAtivos.length === 0) {
-            tabelaModelos = `<p class="text-slate-400 text-xs py-3 text-center">Nenhum modelo agendado para este horário ainda.</p>`;
+            tabelaModelos = `<p class="text-slate-400 text-xs py-4 text-center font-medium bg-slate-50/50 rounded-xl">Nenhum modelo agendado para este horário ainda.</p>`;
           } else {
             let linhas = agendamentosAtivos
               .map((ag) => {
                 let acoesHTML = "";
                 if (ag.status === "agendado") {
                   acoesHTML = `
-                    <div class="flex items-center gap-1.5 justify-center">
-                      <button class="inline-flex items-center gap-1 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2.5 py-1.5 text-xs font-bold text-emerald-700 transition active:scale-95" onclick="concluirServico('${ag.id}')" title="Confirmar Presença">✅ Presença</button>
-                      <button class="inline-flex items-center gap-1 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-200 px-2.5 py-1.5 text-xs font-bold text-rose-700 transition active:scale-95" onclick="cancelarAluno('${ag.id}', '${ag.usuarios ? ag.usuarios.nome : "Modelo"}')" title="Cancelar / Falta">❌ Falta</button>
+                    <div class="flex items-center gap-2 justify-center">
+                      <button class="inline-flex items-center gap-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-3 py-1.5 text-xs font-bold text-emerald-700 shadow-soft-sm transition active:scale-95" onclick="concluirServico('${ag.id}')" title="Confirmar Presença">
+                        <span>✓</span> Presença
+                      </button>
+                      <button class="inline-flex items-center gap-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-200 px-3 py-1.5 text-xs font-bold text-rose-700 shadow-soft-sm transition active:scale-95" onclick="cancelarAluno('${ag.id}', '${ag.usuarios ? ag.usuarios.nome : "Modelo"}')" title="Cancelar / Falta">
+                        <span>✕</span> Falta
+                      </button>
                     </div>
                   `;
                 } else if (ag.status === "concluido") {
-                  acoesHTML = `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">CONCLUÍDO</span>`;
+                  acoesHTML = `<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200"><span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>Concluído</span>`;
                 } else {
-                  acoesHTML = `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700">${ag.status.toUpperCase()}</span>`;
+                  acoesHTML = `<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700">${ag.status.toUpperCase()}</span>`;
                 }
 
                 const rawNomeModelo = ag.usuarios ? ag.usuarios.nome : "Não informado";
@@ -120,16 +124,18 @@ async function carregarMinhasTurmas() {
                 const telLimpo = telRaw.replace(/\D/g, "");
 
                 const msgProf = encodeURIComponent(
-                  `Olá, ${rawNomeModelo}! Aqui é o(a) professor(a) do SENAC referente ao curso ${curso.nome}.`
+                  `Olá, ${rawNomeModelo}! Aqui é o(a) instrutor(a) do Senac referente ao curso de ${curso.nome}.`
                 );
 
                 const linkZap = telLimpo
-                  ? `<a href="https://wa.me/55${telLimpo}?text=${msgProf}" target="_blank" class="inline-flex items-center gap-1 font-semibold text-emerald-600 hover:text-emerald-800 transition">📱 WhatsApp</a>`
-                  : `<span class="text-slate-400">Sem telefone</span>`;
+                  ? `<a href="https://wa.me/55${telLimpo}?text=${msgProf}" target="_blank" class="inline-flex items-center gap-1.5 font-bold text-xs text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-2.5 py-1 rounded-lg border border-emerald-200 transition-colors">
+                      <span>📱</span> WhatsApp
+                    </a>`
+                  : `<span class="text-slate-400 text-xs">Sem telefone</span>`;
 
                 return `
-                  <tr class="hover:bg-slate-50/70 transition-colors">
-                    <td class="py-3 px-4 font-semibold text-slate-900">${safeNomeModelo}</td>
+                  <tr class="hover:bg-slate-50/80 transition-colors">
+                    <td class="py-3 px-4 font-bold text-slate-900">${safeNomeModelo}</td>
                     <td class="py-3 px-4 text-slate-600">${safeEmailModelo}</td>
                     <td class="py-3 px-4">${linkZap}</td>
                     <td class="py-3 px-4 text-center">${acoesHTML}</td>
@@ -139,14 +145,14 @@ async function carregarMinhasTurmas() {
               .join("");
 
             tabelaModelos = `
-              <div class="overflow-x-auto rounded-xl border border-slate-100 mt-3">
-                <table class="min-w-full divide-y divide-slate-100 text-left text-xs">
-                  <thead class="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider">
+              <div class="overflow-x-auto rounded-2xl border border-slate-200/80 mt-3">
+                <table class="min-w-full divide-y divide-slate-200 text-left text-xs">
+                  <thead class="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider">
                     <tr>
-                      <th class="py-2.5 px-4">Modelo</th>
-                      <th class="py-2.5 px-4">E-mail</th>
-                      <th class="py-2.5 px-4">Contato</th>
-                      <th class="py-2.5 px-4 text-center">Status / Ação</th>
+                      <th class="py-3 px-4">Modelo Voluntário(a)</th>
+                      <th class="py-3 px-4">E-mail</th>
+                      <th class="py-3 px-4">Contato Direto</th>
+                      <th class="py-3 px-4 text-center">Status / Frequência</th>
                     </tr>
                   </thead>
                   <tbody class="divide-y divide-slate-100 bg-white">${linhas}</tbody>
@@ -155,13 +161,14 @@ async function carregarMinhasTurmas() {
           }
 
           horariosHTML += `
-            <div class="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs">
-              <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100 mb-2">
+            <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-soft-sm">
+              <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100 mb-2">
                 <div class="flex items-center gap-2 font-bold text-slate-900 text-sm">
-                  <span>📅</span> Aula: ${dataFormatada}
+                  <span class="text-brand-600">📅</span> Aula Prática: ${dataFormatada}
                 </div>
-                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">
-                  Ocupação: ${disp.vagas_ocupadas} / ${disp.vagas_totais}
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-brand-50 text-brand-700 border border-brand-200">
+                  <span class="w-1.5 h-1.5 rounded-full bg-senac-orange"></span>
+                  Vagas: ${disp.vagas_ocupadas} / ${disp.vagas_totais}
                 </span>
               </div>
               ${tabelaModelos}
@@ -175,18 +182,18 @@ async function carregarMinhasTurmas() {
       const safeCursoNome = window.escapeHTML ? window.escapeHTML(curso.nome || '') : (curso.nome || '');
 
       accordion.innerHTML += `
-        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden transition-all">
+        <div class="bg-white rounded-3xl border border-slate-200/80 shadow-soft-sm hover:shadow-soft-md overflow-hidden transition-all">
           <h2>
-            <button class="w-full flex items-center justify-between p-5 text-left font-bold text-slate-900 hover:bg-slate-50 transition cursor-pointer" type="button" onclick="toggleCollapse('collapse${curso.id}', this)">
+            <button class="w-full flex items-center justify-between p-6 text-left font-extrabold text-slate-900 hover:bg-slate-50 transition cursor-pointer" type="button" onclick="toggleCollapse('collapse${curso.id}', this)">
               <div class="flex items-center gap-3">
-                <span class="text-xl">📘</span>
-                <span class="text-base">${safeCursoNome}</span>
+                <span class="p-2 rounded-xl bg-brand-50 text-brand-600 text-lg shadow-soft-sm">📘</span>
+                <span class="text-base sm:text-lg">${safeCursoNome}</span>
               </div>
-              <span class="collapse-badge text-xs text-brand-600 font-semibold bg-brand-50 px-3 py-1 rounded-lg">${badgeText}</span>
+              <span class="collapse-badge text-xs text-brand-600 font-bold bg-brand-50 hover:bg-brand-100 px-3.5 py-1.5 rounded-xl border border-brand-200 transition-colors">${badgeText}</span>
             </button>
           </h2>
           <div id="collapse${curso.id}" class="collapse ${itemOpen} border-t border-slate-100">
-            <div class="p-5 sm:p-6 bg-slate-50/50 space-y-5">
+            <div class="p-5 sm:p-6 bg-slate-50/40 space-y-5">
               ${horariosHTML || '<p class="text-xs text-slate-400 text-center py-4">Sem horários abertos para este curso.</p>'}
             </div>
           </div>
