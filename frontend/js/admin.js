@@ -467,21 +467,24 @@ document.addEventListener("DOMContentLoaded", () => {
 // ==========================================
 // 2. LISTAR CURSOS NA TABELA DE GESTÃO
 // ==========================================
-async function carregarCursosAdmin(){
+window.cursosAdminMap = new Map();
+
+async function carregarCursosAdmin() {
     const tbody = document.getElementById('tabelaCursosBody');
     if (!tbody) return;
 
     try {
         const response = await fetch(`${API_URL}/cursos/admin`, {
             headers: { 'Authorization': `Bearer ${token}` }
-window.cursosAdminMap = new Map();
-
-async function carregarCursosAdmin(){
-    const tbody = document.getElementById('tabelaCursosBody');
-    try {
-        const response = await fetch(`${API_URL}/cursos`, {
-            headers: { 'Authorization': `Bearer ${token}` }
         });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.removeItem('token');
+            if (window.showToast) window.showToast('Sessão expirada. Redirecionando para login...', 'error');
+            setTimeout(() => window.location.href = 'index.html', 1000);
+            return;
+        }
+
         const cursos = await response.json();
 
         tbody.innerHTML = '';
