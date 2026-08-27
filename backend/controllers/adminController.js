@@ -1,6 +1,6 @@
 // backend/controllers/adminController.js
 const supabase = require('../config/database');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 // 1. Listar utilizadores com métricas (consome a nossa nova View)
 exports.listarUtilizadores = async (req, res) => {

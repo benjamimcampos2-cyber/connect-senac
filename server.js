@@ -1,6 +1,8 @@
 // server.js
 require('dotenv').config(); // Carrega as variáveis do arquivo .env
-require('./backend/cron/notificador')
+if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
+    require('./backend/cron/notificador');
+}
 const express = require('express');
 const cors = require('cors');
 const db = require('./backend/config/database');
@@ -51,7 +53,7 @@ app.use(express.json()); // Ensina o Express a entender requisições no formato
 app.use(express.static(path.join(__dirname, 'frontend')));
 
 // Rota de teste e healthcheck
-app.get('/api/status', (req, res) => {
+app.get(['/api/status', '/status'], (req, res) => {
     res.json({ mensagem: "Servidor Connect Senac rodando com sucesso!", status: "OK" });
 });
 
@@ -65,8 +67,26 @@ app.use('/api/admin', require('./backend/routes/adminRoutes'));
 app.use('/api/profissional', require('./backend/routes/profissionalRoutes'));
 app.use('/api/feedbacks', require('./backend/routes/feedbackRoutes'));
 
-// Iniciar servidor somente quando executado diretamente (permite supertest importar app sem prender a porta)
-if (process.env.NODE_ENV !== 'test') {
+// Handler para rotas não encontradas (Garante que a resposta sempre termine)
+app.use((req, res) => {
+    res.status(404).json({
+        erro: "Endpoint não encontrado",
+        url: req.originalUrl || req.url,
+        metodo: req.method
+    });
+});
+
+// Handler global de erros
+app.use((err, req, res, next) => {
+    console.error('Erro na aplicação:', err);
+    res.status(500).json({
+        erro: "Erro interno no servidor",
+        mensagem: err.message
+    });
+});
+
+// Iniciar servidor somente quando executado diretamente (permite supertest importar app e Vercel Serverless Function)
+if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
     app.listen(PORT, () => {
         console.log(`Servidor rodando na porta ${PORT}`);
         console.log(`Acesse: http://localhost:${PORT}/api/status`);

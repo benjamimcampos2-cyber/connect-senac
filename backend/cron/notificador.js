@@ -7,7 +7,7 @@ const supabase = require('../config/database');
 // Cache em memória para evitar múltiplos disparos no mesmo ciclo/dia
 const lembretesEnviados = new Set(); // Chaves: `${agendamentoId}_24h`, `${agendamentoId}_3h`
 
-if (process.env.NODE_ENV !== 'test') {
+if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
     cron.schedule('* * * * *', async () => {
     try {
         const agora = new Date();

@@ -1,6 +1,6 @@
 // backend/controllers/usuarioController.js
 const supabase = require('../config/database');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto'); // Biblioteca nativa do Node.js para criptografia
 
